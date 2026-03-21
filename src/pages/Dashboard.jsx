@@ -31,12 +31,17 @@ const Dashboard = () => {
 
   // Monitora se o perfil está incompleto
   React.useEffect(() => {
-    if (profile && !profile.is_profile_complete) {
+    console.log("Dashboard - User:", user?.email);
+    console.log("Dashboard - Profile Data:", profile);
+    
+    // Considera incompleto se is_profile_complete for FALSE ou NULL/undefined
+    if (profile && (profile.is_profile_complete === false || profile.is_profile_complete === null || profile.is_profile_complete === undefined)) {
+      console.log("Dashboard - Perfil Incompleto Detectado!");
       setShowCompletion(true);
     } else {
       setShowCompletion(false);
     }
-  }, [profile]);
+  }, [profile, user]);
   
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -130,17 +135,81 @@ const Dashboard = () => {
                 width: '44px', 
                 height: '44px', 
                 borderRadius: '12px', 
-                background: 'var(--primary)', 
+                background: profile?.avatar_url ? 'transparent' : 'var(--primary)', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
-                boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)' 
+                boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
+                overflow: 'hidden',
+                border: profile?.avatar_url ? '2px solid var(--primary)' : 'none'
               }}>
-                <UserIcon size={20} color="white" />
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <UserIcon size={20} color="white" />
+                )}
               </div>
             </div>
           </div>
         </header>
+
+        {/* BANNER DE INCENTIVO (Apenas se o perfil estiver incompleto) */}
+        <AnimatePresence>
+          {profile && !profile.is_profile_complete && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              style={{
+                background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.15))',
+                borderRadius: '20px',
+                padding: isMobile ? '16px' : '20px 32px',
+                border: '1px solid rgba(139, 92, 246, 0.2)',
+                marginBottom: '32px',
+                display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: 'space-between',
+                alignItems: isMobile ? 'flex-start' : 'center',
+                gap: '16px',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+            >
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '4px' }}>Seu perfil está quase pronto! 🎓</h4>
+                <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)' }}>
+                  Complete seus dados de turma e horário para se conectar com seus colegas.
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowCompletion(true)}
+                className="btn-primary"
+                style={{ 
+                  padding: '10px 24px', 
+                  fontSize: '0.9rem', 
+                  borderRadius: '12px',
+                  whiteSpace: 'nowrap',
+                  position: 'relative',
+                  zIndex: 1
+                }}
+              >
+                Completar Agora
+              </button>
+              
+              {/* Efeito decorativo no banner */}
+              <div style={{
+                position: 'absolute',
+                right: '-20px',
+                top: '-20px',
+                width: '100px',
+                height: '100px',
+                background: 'var(--primary)',
+                filter: 'blur(50px)',
+                opacity: 0.2
+              }} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* QUICK ACTIONS GRID */}
         <div style={{ 

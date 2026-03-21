@@ -1,105 +1,79 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { logActivity } from '../lib/logger';
 
 const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
+  const sessionRef = React.useRef(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const logAccess = async (userId) => {
-    console.log("RL: Registrando acesso para o usuário:", userId);
-    let userIp = '0.0.0.0';
-    
-    try {
-      // Capturar IP público (LGPD)
-      const ipResponse = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipResponse.json();
-      userIp = ipData.ip;
-    } catch (ipErr) {
-      console.warn("RL Warning: Não foi possível obter o IP:", ipErr);
-    }
-
-    try {
-      const { error } = await supabase.from('access_logs').insert([
-        { 
-          user_id: userId,
-          ip_address: userIp,
-          user_agent: navigator.userAgent
-        }
-      ]);
-      
-      if (error) {
-        console.error("RL Error: Falha ao inserir em access_logs:", error);
-      } else {
-        console.log("RL Success: Acesso registrado com IP:", userIp);
-      }
-    } catch (err) {
-      console.error("RL Critical: Erro de exceção no logAccess:", err);
-    }
-  };
-
   const fetchProfile = async (userId) => {
+    if (!userId) return;
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      const token = sessionRef.current?.access_token;
+      if (!token) return;
+
+      const sUrl = import.meta.env.VITE_SUPABASE_URL;
+      const sKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const endpoint = `${sUrl}/rest/v1/user_profiles?id=eq.${userId}&select=*`;
       
-      if (!error && data) {
-        setProfile(data);
+      const response = await fetch(endpoint, {
+        headers: { 'apikey': sKey, 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data?.[0]) setProfile(data[0]);
       }
     } catch (err) {
-      console.error("Erro ao buscar perfil:", err);
+      // Erro silencioso em produção
     }
   };
 
   useEffect(() => {
-    const getSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          setUser(session.user);
-          logAccess(session.user.id);
-          await fetchProfile(session.user.id);
-        }
-      } catch (err) {
-        console.error("Erro ao carregar sessão inicial:", err);
-      } finally {
-        setLoading(false);
+    // 1. Carga inicial
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+      sessionRef.current = s;
+      setSession(s);
+      if (s?.user) {
+        setUser(s.user);
+        await fetchProfile(s.user.id);
+        logActivity({
+          userId: s.user.id,
+          token: s.access_token,
+          action: 'login',
+          route: window.location.pathname
+        });
       }
-    };
-
-    getSession();
-
-    // Timeout de segurança: se o Supabase demorar demais, libera a tela
-    const safetyTimeout = setTimeout(() => {
       setLoading(false);
-    }, 3000);
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      try {
-        if (session?.user) {
-          setUser(session.user);
-          logAccess(session.user.id);
-          await fetchProfile(session.user.id);
-        } else {
-          setUser(null);
-          setProfile(null);
-        }
-      } catch (err) {
-        console.error("Erro na mudança de estado de autenticação:", err);
-      } finally {
-        setLoading(false);
-      }
     });
 
-    return () => {
-      clearTimeout(safetyTimeout);
-      subscription.unsubscribe();
-    };
+    // 2. Listener de mudanças
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
+      sessionRef.current = s;
+      setSession(s);
+      if (s?.user) {
+        setUser(s.user);
+        await fetchProfile(s.user.id);
+        if (event === 'SIGNED_IN') {
+          logActivity({
+            userId: s.user.id,
+            token: s.access_token,
+            action: 'login',
+            route: window.location.pathname
+          });
+        }
+      } else {
+        setUser(null);
+        setProfile(null);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const logout = async () => {
@@ -116,6 +90,7 @@ export const AuthProvider = ({ children }) => {
 
       // 3. Resetar estados locais
       setUser(null);
+      setSession(null);
       setProfile(null);
     } catch (err) {
       console.error("Erro ao sair:", err);
@@ -124,6 +99,7 @@ export const AuthProvider = ({ children }) => {
         if (key.startsWith('sb-')) localStorage.removeItem(key);
       });
       setUser(null);
+      setSession(null);
       setProfile(null);
     }
   };
@@ -132,6 +108,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={{ 
       user, 
       profile, 
+      session,
       loading, 
       signOut: logout, 
       refreshProfile: () => fetchProfile(user?.id) 

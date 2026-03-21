@@ -5,23 +5,24 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
 import { useAuth } from './context/AuthContext';
 
-// Componente para gerenciar a visibilidade dos elementos globais
+// ... (LayoutWrapper code)
 const LayoutWrapper = ({ children }) => {
   const location = useLocation();
   const { user } = useAuth();
   
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
-  const isDashboard = location.pathname === '/dashboard';
+  const isInternalPage = location.pathname === '/dashboard' || location.pathname === '/profile';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
-      {(!isAuthPage && !isDashboard) && <Navbar />}
+      {(!isAuthPage && !isInternalPage) && <Navbar />}
       <main style={{ flex: 1 }}>
         {children}
       </main>
-      {(!isAuthPage && !isDashboard) && <Footer />}
+      {(!isAuthPage && !isInternalPage) && <Footer />}
     </div>
   );
 };
@@ -35,6 +36,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </LayoutWrapper>
     </Router>

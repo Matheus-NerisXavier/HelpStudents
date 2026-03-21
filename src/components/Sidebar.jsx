@@ -37,12 +37,12 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
   };
 
   const menuItems = [
-    { icon: <LayoutDashboard size={22} />, label: 'Dashboard', id: 'dash', active: true },
-    { icon: <MessageSquare size={22} />, label: 'Fórum de Dúvidas', id: 'forum' },
-    { icon: <Newspaper size={22} />, label: 'Notícias Escolares', id: 'news' },
-    { icon: <BookOpen size={22} />, label: 'Materiais de Estudo', id: 'docs' },
-    { icon: <Car size={22} />, label: 'Caronas Universitárias', id: 'rides' },
-    { icon: <User size={22} />, label: 'Meus Dados / Perfil', id: 'profile' },
+    { icon: <LayoutDashboard size={22} />, label: 'Dashboard', id: 'dash', active: window.location.pathname === '/dashboard', path: '/dashboard' },
+    { icon: <MessageSquare size={22} />, label: 'Fórum de Dúvidas', id: 'forum', path: '/forum' },
+    { icon: <Newspaper size={22} />, label: 'Notícias Escolares', id: 'news', path: '/news' },
+    { icon: <BookOpen size={22} />, label: 'Materiais de Estudo', id: 'docs', path: '/docs' },
+    { icon: <Car size={22} />, label: 'Caronas Universitárias', id: 'rides', path: '/rides' },
+    { icon: <User size={22} />, label: 'Meus Dados / Perfil', id: 'profile', active: window.location.pathname === '/profile', path: '/profile' },
   ];
 
   const sidebarWidth = 280;
@@ -135,29 +135,17 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
             </div>
           )}
 
-          {/* TOGGLE / CLOSE BUTTON */}
-          <button 
-            onClick={onToggle}
-            style={{ 
-              background: isMobile ? 'rgba(255,255,255,0.05)' : 'none', 
-              border: 'none', 
-              color: 'rgba(255,255,255,0.4)', 
-              cursor: 'pointer',
-              padding: '8px',
-              borderRadius: '8px',
-              display: (isCollapsed && !isMobile) ? 'none' : 'block'
-            }}
-          >
-            {isMobile ? <ChevronLeft size={24} color="white" /> : <ChevronLeft size={20} />}
-          </button>
+          {/* REMOVIDO DAQUI O BOTÃO DE TOGGLE PARA LIMPAR O VISUAL */}
         </div>
 
         {/* MENU ITEMS */}
         <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {/* ... (menuItems mapping) */}
           {menuItems.map((item, i) => (
             <motion.div
               key={i}
               whileHover={{ x: (isCollapsed && !isMobile) ? 0 : 5, background: 'rgba(255,255,255,0.03)' }}
+              onClick={() => item.path && navigate(item.path)}
               style={{
                 padding: '12px',
                 borderRadius: '12px',
@@ -187,7 +175,32 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
         </nav>
 
         {/* FOOTER ACTIONS */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* BOTÃO DE EXPANDIR/RECOLHER (AGORA NO RODAPÉ NO DESKTOP) */}
+          {!isMobile && (
+            <div 
+              onClick={onToggle}
+              style={{
+                padding: '12px',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                gap: '12px',
+                cursor: 'pointer',
+                color: 'rgba(255,255,255,0.4)',
+                background: 'rgba(255,255,255,0.02)',
+                transition: 'all 0.2s'
+              }}
+            >
+              <div style={{ transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>
+                <ChevronLeft size={22} />
+              </div>
+              {!isCollapsed && <span style={{ fontSize: '0.95rem', fontWeight: '700' }}>Recolher Menu</span>}
+            </div>
+          )}
+
+          {/* SAIR DA CONTA */}
           <div 
             onClick={() => setShowLogoutConfirm(true)}
             style={{

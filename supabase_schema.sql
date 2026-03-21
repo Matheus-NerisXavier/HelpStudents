@@ -96,3 +96,4 @@ CREATE POLICY "Anyone can insert access logs" ON access_logs FOR INSERT WITH CHE
 CREATE POLICY "Admins can view all profiles" ON profiles FOR SELECT USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
 );
+
