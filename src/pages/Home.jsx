@@ -92,11 +92,14 @@ const Home = () => {
   }, [user, navigate]);
 
   return (
-    <div style={{ 
+    <div className="dark" style={{ 
       paddingTop: isMobile ? '80px' : 'calc(var(--nav-height) + 60px)', 
       paddingBottom: '100px',
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      background: 'var(--bg-main)',
+      color: 'var(--text-main)',
+      minHeight: '100vh'
     }}>
       
       {/* BACKGROUND BLOBS ANIMADOS (Agora mais sutis para não interferir nas cores da marca) */}
