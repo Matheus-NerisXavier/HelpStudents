@@ -17,12 +17,20 @@ import { supabase } from '../lib/supabase';
 const ProfileCompletion = ({ user, onComplete }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [formData, setFormData] = useState({
     course_name: '',
     course_year: '',
     course_period: '',
     student_bio: ''
   });
+
+  // Monitora redimensionamento
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const years = [1, 2, 3, 4, 5, 6];
   const periods = [
@@ -89,7 +97,7 @@ const ProfileCompletion = ({ user, onComplete }) => {
           background: 'rgba(15, 23, 42, 0.8)',
           border: '1px solid rgba(255, 255, 255, 0.1)',
           borderRadius: '32px',
-          padding: '40px',
+          padding: isMobile ? '24px' : '40px',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
           position: 'relative',
           overflow: 'hidden'
@@ -127,8 +135,8 @@ const ProfileCompletion = ({ user, onComplete }) => {
                 }}>
                   <GraduationCap size={28} color="#8b5cf6" />
                 </div>
-                <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '8px' }}>Seu curso</h2>
-                <p style={{ color: '#94a3b8' }}>Qual curso você está fazendo e em qual ano você está?</p>
+                <h2 style={{ fontSize: isMobile ? '1.5rem' : '1.75rem', fontWeight: '800', marginBottom: '8px' }}>Seu curso</h2>
+                <p style={{ color: '#94a3b8', fontSize: isMobile ? '0.9rem' : '1rem' }}>Qual curso você está fazendo e em qual ano você está?</p>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

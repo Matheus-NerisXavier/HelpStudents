@@ -18,7 +18,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
-const Sidebar = ({ isCollapsed, onToggle }) => {
+const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
@@ -45,20 +45,48 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
     { icon: <User size={22} />, label: 'Meus Dados / Perfil', id: 'profile' },
   ];
 
+  const sidebarWidth = 280;
+
   return (
     <>
+      {/* BACKDROP PARA MOBILE */}
+      <AnimatePresence>
+        {isMobile && !isCollapsed && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onToggle}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: 'rgba(0,0,0,0.6)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 90
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       <motion.div 
         initial={false}
-        animate={{ width: isCollapsed ? '80px' : '280px' }}
+        animate={{ 
+          width: isMobile ? sidebarWidth : (isCollapsed ? '80px' : '280px'),
+          x: isMobile && isCollapsed ? -sidebarWidth : 0
+        }}
         style={{
           height: '100vh',
           background: '#0a0c10',
           borderRight: '1px solid rgba(255,255,255,0.05)',
           display: 'flex',
           flexDirection: 'column',
-          padding: isCollapsed ? '24px 12px' : '32px 20px',
+          padding: (isCollapsed && !isMobile) ? '24px 12px' : '32px 20px',
           position: 'fixed',
-          zIndex: 100
+          zIndex: 100,
+          boxShadow: isMobile && !isCollapsed ? '20px 0 50px rgba(0,0,0,0.5)' : 'none'
         }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       >
@@ -67,10 +95,10 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
           marginBottom: '40px', 
           display: 'flex', 
           alignItems: 'center', 
-          justifyContent: isCollapsed ? 'center' : 'space-between',
-          padding: isCollapsed ? '0' : '0 12px'
+          justifyContent: (isCollapsed && !isMobile) ? 'center' : 'space-between',
+          padding: (isCollapsed && !isMobile) ? '0' : '0 12px'
         }}>
-          {!isCollapsed && (
+          {(!isCollapsed || isMobile) && (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -92,7 +120,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
             </motion.div>
           )}
           
-          {isCollapsed && (
+          {(isCollapsed && !isMobile) && (
             <div style={{ 
               width: '40px', 
               height: '40px', 
@@ -107,56 +135,35 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
             </div>
           )}
 
-          {/* TOGGLE BUTTON */}
-          {!isCollapsed && (
-            <button 
-              onClick={onToggle}
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                color: 'rgba(255,255,255,0.4)', 
-                cursor: 'pointer',
-                padding: '8px',
-                borderRadius: '8px'
-              }}
-            >
-              <ChevronLeft size={20} />
-            </button>
-          )}
-        </div>
-
-        {isCollapsed && (
+          {/* TOGGLE / CLOSE BUTTON */}
           <button 
             onClick={onToggle}
             style={{ 
-              background: 'rgba(255,255,255,0.03)', 
+              background: isMobile ? 'rgba(255,255,255,0.05)' : 'none', 
               border: 'none', 
-              color: 'white', 
+              color: 'rgba(255,255,255,0.4)', 
               cursor: 'pointer',
-              padding: '12px',
-              borderRadius: '12px',
-              marginBottom: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
+              padding: '8px',
+              borderRadius: '8px',
+              display: (isCollapsed && !isMobile) ? 'none' : 'block'
             }}
           >
-            <Menu size={20} />
+            {isMobile ? <ChevronLeft size={24} color="white" /> : <ChevronLeft size={20} />}
           </button>
-        )}
+        </div>
 
         {/* MENU ITEMS */}
         <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {menuItems.map((item, i) => (
             <motion.div
               key={i}
-              whileHover={{ x: isCollapsed ? 0 : 5, background: 'rgba(255,255,255,0.03)' }}
+              whileHover={{ x: (isCollapsed && !isMobile) ? 0 : 5, background: 'rgba(255,255,255,0.03)' }}
               style={{
                 padding: '12px',
                 borderRadius: '12px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                justifyContent: (isCollapsed && !isMobile) ? 'center' : 'flex-start',
                 gap: '12px',
                 cursor: 'pointer',
                 background: item.active ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
@@ -166,7 +173,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
               }}
             >
               {item.icon}
-              {!isCollapsed && (
+              {(!isCollapsed || isMobile) && (
                 <motion.span 
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -188,14 +195,14 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
               borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: isCollapsed ? 'center' : 'flex-start',
+              justifyContent: (isCollapsed && !isMobile) ? 'center' : 'flex-start',
               gap: '12px',
               cursor: 'pointer',
               color: '#ef4444'
             }}
           >
             <LogOut size={22} />
-            {!isCollapsed && <span style={{ fontSize: '0.95rem', fontWeight: '700' }}>Sair da Conta</span>}
+            {(!isCollapsed || isMobile) && <span style={{ fontSize: '0.95rem', fontWeight: '700' }}>Sair da Conta</span>}
           </div>
         </div>
       </motion.div>
