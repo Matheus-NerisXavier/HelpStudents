@@ -317,7 +317,7 @@ const Profile = () => {
 
   if (authLoading || !initialized) {
     return (
-      <div style={{ background: '#050608', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+      <div style={{ background: 'var(--bg-main)', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-main)' }}>
         <Loader2 className="animate-spin" size={48} color="#8b5cf6" style={{ marginBottom: '20px' }} />
         <p style={{ fontWeight: '800', opacity: 0.5 }}>Sincronizando seus dados...</p>
       </div>
@@ -325,7 +325,7 @@ const Profile = () => {
   }
 
   return (
-    <div style={{ display: 'flex', background: '#050608', minHeight: '100vh', color: 'white', fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ display: 'flex', background: 'var(--bg-main)', minHeight: '100vh', color: 'var(--text-main)', fontFamily: "'Outfit', sans-serif" }}>
       <Sidebar isCollapsed={isSidebarCollapsed} onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} isMobile={isMobile} />
       
       <motion.main 
@@ -346,7 +346,7 @@ const Profile = () => {
 
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 2fr', gap: '40px' }}>
           {/* LADO PREVIEW */}
-          <section style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '32px', padding: '40px', textAlign: 'center', position: isMobile ? 'relative' : 'sticky', top: '40px', backdropFilter: 'blur(20px)', alignSelf: 'start' }}>
+          <section style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-light)', borderRadius: '32px', padding: '40px', textAlign: 'center', position: isMobile ? 'relative' : 'sticky', top: '40px', backdropFilter: 'blur(20px)', alignSelf: 'start' }}>
             
             <input 
               type="file" 
@@ -356,27 +356,30 @@ const Profile = () => {
               style={{ display: 'none' }} 
             />
             
-            <div style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto 24px auto' }}>
+            <div style={{ position: 'relative', width: '130px', height: '130px', margin: '0 auto 24px auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'absolute', inset: 0, borderRadius: '44px', background: 'linear-gradient(45deg, #8b5cf6, #06b6d4, #f59e0b)', filter: 'blur(12px)', opacity: 0.5, animation: 'spin 4s linear infinite' }} />
+              
               <div 
                 onClick={() => fileInputRef.current?.click()}
                 style={{ 
-                  width: '100%', 
-                  height: '100%', 
+                  width: '120px', 
+                  height: '120px', 
                   borderRadius: '40px', 
-                  background: formData.avatar_url ? 'transparent' : 'linear-gradient(135deg, #8b5cf6, #06b6d4)', 
+                  background: formData.avatar_url ? 'var(--bg-main)' : 'linear-gradient(135deg, #8b5cf6, #06b6d4)', 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center', 
-                  boxShadow: '0 20px 40px rgba(139, 92, 246, 0.2)',
+                  boxShadow: '0 20px 40px rgba(139, 92, 246, 0.3)',
                   cursor: 'pointer',
                   position: 'relative',
                   overflow: 'hidden',
-                  border: formData.avatar_url ? '2px solid #8b5cf6' : 'none'
+                  border: formData.avatar_url ? '2px solid #8b5cf6' : '3px solid var(--border-light)',
+                  zIndex: 2
                 }}
               >
                 {uploading && (
                   <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-                    <Loader2 className="animate-spin" size={24} color="white" />
+                    <Loader2 className="animate-spin" size={24} color="var(--text-main)" />
                   </div>
                 )}
                 {formData.avatar_url ? (
@@ -395,7 +398,7 @@ const Profile = () => {
                     justifyContent: 'center',
                     opacity: 0,
                     transition: 'opacity 0.2s',
-                    color: 'white',
+                    color: 'var(--text-main)',
                     fontSize: '0.9rem',
                     fontWeight: '700'
                   }}
@@ -418,7 +421,7 @@ const Profile = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: '3px solid #0f172a',
+                  border: '3px solid var(--bg-main)',
                   cursor: 'pointer',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                   zIndex: 20,
@@ -433,23 +436,54 @@ const Profile = () => {
             
             <style>{`
               div:hover > .avatar-overlay { opacity: 1 !important; }
+              @keyframes spin { 100% { transform: rotate(360deg); } }
+              .glass-input {
+                width: 100%;
+                padding: 16px 20px;
+                background: transparent;
+                border: 1px solid var(--border-light);
+                border-radius: 16px;
+                color: var(--text-main);
+                transition: all 0.3s ease;
+                outline: none;
+                font-family: 'Outfit', sans-serif;
+              }
+              .glass-input:focus {
+                background: var(--border-light);
+                border-color: #8b5cf6;
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+              }
+              .interest-tag {
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+              }
+              .interest-tag:hover {
+                transform: scale(1.05);
+                filter: brightness(1.2);
+              }
+              .level-btn {
+                transition: all 0.2s;
+              }
+              .level-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
+              }
             `}</style>
 
             <h2 style={{ fontSize: '1.75rem', fontWeight: '900', marginBottom: '4px' }}>{formData.full_name || 'Estudante'}</h2>
             <p style={{ color: '#8b5cf6', fontWeight: '700', marginBottom: '24px' }}>{formData.education_level}</p>
-            <div style={{ textAlign: 'left', background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}><Mail size={14} /> {formData.email}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}><Globe size={14} /> {formData.school_name || 'Não definida'}</div>
+            <div style={{ textAlign: 'left', background: 'var(--hover-bg)', padding: '20px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-muted)' }}><Mail size={14} /> {formData.email}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-muted)' }}><Globe size={14} /> {formData.school_name || 'Não definida'}</div>
             </div>
           </section>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             {/* SEGURANÇA */}
-            <div style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '32px', padding: isMobile ? '24px' : '40px' }}>
+            <div style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-light)', borderRadius: '32px', padding: isMobile ? '24px' : '40px' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px', color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '10px' }}><Lock size={20} /> Acesso & Segurança</h3>
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ fontSize: '0.8rem', opacity: 0.5, display: 'block', marginBottom: '8px' }}>E-mail Primário</label>
-                <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} style={{ width: '100%', padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: 'white' }} />
+                <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '8px', fontWeight: '800' }}>E-mail</label>
+                <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="glass-input" />
               </div>
               
               {!showPasswordForm ? (
@@ -457,12 +491,12 @@ const Profile = () => {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ position: 'relative' }}>
-                    <input type={showNewPassword ? "text" : "password"} placeholder="Nova senha segura" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} style={{ width: '100%', padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: 'white' }} />
-                    <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'white' }}>{showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                    <input type={showNewPassword ? "text" : "password"} placeholder="Nova senha segura" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="glass-input" />
+                    <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-main)' }}>{showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                   </div>
                    <div style={{ position: 'relative' }}>
-                    <input type={showConfirmPassword ? "text" : "password"} placeholder="Confirme a nova senha" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} style={{ width: '100%', padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: 'white' }} />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'white' }}>{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                    <input type={showConfirmPassword ? "text" : "password"} placeholder="Confirme a nova senha" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="glass-input" />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-main)' }}>{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                   </div>
                   <div style={{ display: 'flex', gap: '12px' }}>
                     <button onClick={handleChangePassword} className="btn-primary">Salvar Senha</button>
@@ -473,19 +507,19 @@ const Profile = () => {
             </div>
 
             {/* FORMULÁRIO PRINCIPAL */}
-            <form onSubmit={handleUpdate} style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '32px', padding: isMobile ? '24px' : '40px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
+            <form onSubmit={handleUpdate} style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-light)', borderRadius: '32px', padding: isMobile ? '24px' : '40px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
               <section>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px' }}>Dados do Estudante</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '20px' }}>
                   <div style={{ gridColumn: isMobile ? 'span 1' : 'span 2' }}>
-                    <label style={{ fontSize: '0.8rem', opacity: 0.5, display: 'block', marginBottom: '8px' }}>Nome Completo</label>
-                    <input type="text" value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} style={{ width: '100%', padding: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '18px', color: 'white' }} />
+                    <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '8px', fontWeight: '800' }}>Nome Completo</label>
+                    <input type="text" value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} className="glass-input" />
                   </div>
                   <div style={{ gridColumn: isMobile ? 'span 1' : 'span 2' }}>
-                     <label style={{ fontSize: '0.8rem', opacity: 0.5, display: 'block', marginBottom: '12px' }}>Nível de Ensino</label>
+                     <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '12px', fontWeight: '800' }}>Nível de Ensino</label>
                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                         {['Ensino Médio', 'Ensino Técnico', 'Ensino Superior'].map(lvl => (
-                          <button key={lvl} type="button" onClick={() => setFormData({...formData, education_level: lvl})} style={{ padding: '12px 20px', borderRadius: '14px', background: formData.education_level === lvl ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255,255,255,0.02)', border: `1px solid ${formData.education_level === lvl ? '#8b5cf6' : 'rgba(255,255,255,0.1)'}`, color: formData.education_level === lvl ? '#8b5cf6' : 'rgba(255,255,255,0.5)', fontWeight: '800' }}>{lvl}</button>
+                          <button key={lvl} type="button" onClick={() => setFormData({...formData, education_level: lvl})} className="level-btn" style={{ padding: '12px 20px', borderRadius: '14px', background: formData.education_level === lvl ? 'rgba(139, 92, 246, 0.2)' : 'var(--hover-bg)', border: `1px solid ${formData.education_level === lvl ? '#8b5cf6' : 'var(--border-light)'}`, color: formData.education_level === lvl ? '#8b5cf6' : 'var(--text-muted)', fontWeight: '800' }}>{lvl}</button>
                         ))}
                      </div>
                   </div>
@@ -496,17 +530,17 @@ const Profile = () => {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px' }}>Vida Acadêmica</h3>
                 
                 <div style={{ position: 'relative', marginBottom: '24px' }}>
-                  <label style={{ fontSize: '0.8rem', opacity: 0.5, display: 'block', marginBottom: '8px' }}>Instituição / Escola</label>
+                  <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '8px', fontWeight: '800' }}>Instituição / Escola</label>
                   <div style={{ position: 'relative' }}>
-                    <input type="text" value={formData.school_name} onChange={(e) => setFormData({...formData, school_name: e.target.value})} placeholder="Busque sua faculdade ou escola..." style={{ width: '100%', padding: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '18px', color: 'white' }} />
+                    <input type="text" value={formData.school_name} onChange={(e) => setFormData({...formData, school_name: e.target.value})} placeholder="Busque sua faculdade ou escola..." className="glass-input" />
                     {searching && <div className="animate-pulse" style={{ position: 'absolute', right: '18px', top: '50%', transform: 'translateY(-50%)', color: '#06b6d4', fontWeight: '900', fontSize: '0.75rem' }}>BUSCANDO...</div>}
                   </div>
                   
                   <AnimatePresence>
                     {schoolSuggestions.length > 0 && (
-                      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} ref={suggestionRef} style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#0a0c10', borderRadius: '20px', zIndex: 100, border: '1px solid rgba(255,255,255,0.1)', marginTop: '8px', overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,0.6)' }}>
+                      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} ref={suggestionRef} style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'var(--glass-bg)', borderRadius: '20px', zIndex: 100, border: '1px solid var(--border-light)', marginTop: '8px', overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,0.6)' }}>
                         {schoolSuggestions.map((s, i) => (
-                          <div key={i} onClick={() => selectSchool(s.nome)} style={{ padding: '16px 24px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.9rem' }} onMouseEnter={(e) => e.target.style.background = 'rgba(139, 92, 246, 0.1)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>{s.nome}</div>
+                          <div key={i} onClick={() => selectSchool(s.nome)} style={{ padding: '16px 24px', cursor: 'pointer', borderBottom: '1px solid var(--border-light)', fontSize: '0.9rem' }} onMouseEnter={(e) => e.target.style.background = 'rgba(139, 92, 246, 0.1)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>{s.nome}</div>
                         ))}
                       </motion.div>
                     )}
@@ -515,14 +549,14 @@ const Profile = () => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '24px' }}>
                   <div>
-                    <label style={{ fontSize: '0.8rem', opacity: 0.5, display: 'block', marginBottom: '8px' }}>Curso / Série</label>
-                    <input type="text" value={formData.course_name} onChange={(e) => setFormData({...formData, course_name: e.target.value})} style={{ width: '100%', padding: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '18px', color: 'white' }} />
+                    <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '8px', fontWeight: '800' }}>Curso / Série</label>
+                    <input type="text" value={formData.course_name} onChange={(e) => setFormData({...formData, course_name: e.target.value})} className="glass-input" />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.8rem', opacity: 0.5, display: 'block', marginBottom: '8px' }}>Ano / Período Atual</label>
+                    <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '8px', fontWeight: '800' }}>Ano / Período Atual</label>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', gap: '8px' }}>
                       {yearOptions.map(opt => (
-                        <button key={opt} type="button" onClick={() => setFormData({...formData, course_year: opt})} style={{ padding: '12px 4px', background: formData.course_year === opt ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255,255,255,0.02)', border: `1px solid ${formData.course_year === opt ? '#8b5cf6' : 'rgba(255,255,255,0.08)'}`, borderRadius: '12px', color: formData.course_year === opt ? '#8b5cf6' : 'rgba(255,255,255,0.5)', fontWeight: '900' }}>{opt}</button>
+                        <button key={opt} type="button" onClick={() => setFormData({...formData, course_year: opt})} className="level-btn" style={{ padding: '12px 4px', background: formData.course_year === opt ? 'rgba(139, 92, 246, 0.2)' : 'var(--hover-bg)', border: `1px solid ${formData.course_year === opt ? '#8b5cf6' : 'var(--border-light)'}`, borderRadius: '12px', color: formData.course_year === opt ? '#8b5cf6' : 'var(--text-muted)', fontWeight: '900' }}>{opt}</button>
                       ))}
                     </div>
                   </div>
@@ -533,17 +567,17 @@ const Profile = () => {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px' }}>Interesses</h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                   {interestOptions.map(i => (
-                    <button key={i} type="button" onClick={() => toggleInterest(i)} style={{ padding: '12px 20px', borderRadius: '16px', background: formData.interests.includes(i) ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255,255,255,0.02)', border: `1px solid ${formData.interests.includes(i) ? '#f59e0b' : 'rgba(255,255,255,0.08)'}`, color: formData.interests.includes(i) ? '#f59e0b' : 'rgba(255,255,255,0.5)', fontWeight: '800' }}>{i}</button>
+                    <button key={i} type="button" onClick={() => toggleInterest(i)} className="interest-tag" style={{ padding: '12px 20px', borderRadius: '16px', background: formData.interests.includes(i) ? 'radial-gradient(circle at top left, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.1))' : 'var(--hover-bg)', border: `1px solid ${formData.interests.includes(i) ? '#f59e0b' : 'var(--border-light)'}`, color: formData.interests.includes(i) ? '#f59e0b' : 'var(--text-muted)', fontWeight: '800', boxShadow: formData.interests.includes(i) ? '0 0 15px rgba(245, 158, 11, 0.2)' : 'none' }}>{i}</button>
                   ))}
                 </div>
               </section>
 
               <section>
-                <label style={{ fontSize: '0.8rem', opacity: 0.5, display: 'block', marginBottom: '12px' }}>Sua Bio</label>
-                <textarea value={formData.student_bio} onChange={(e) => setFormData({...formData, student_bio: e.target.value})} placeholder="Conte um pouco sobre você..." style={{ width: '100%', height: '120px', padding: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '18px', color: 'white', resize: 'none' }} />
+                <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '12px', fontWeight: '800' }}>Sua Bio</label>
+                <textarea value={formData.student_bio} onChange={(e) => setFormData({...formData, student_bio: e.target.value})} placeholder="Conte um pouco sobre você..." className="glass-input" style={{ height: '120px', resize: 'none' }} />
               </section>
 
-              <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '22px', borderRadius: '24px', fontSize: '1.25rem', fontWeight: '900', boxShadow: '0 20px 40px rgba(139, 92, 246, 0.3)' }}>{loading ? 'Sincronizando...' : 'Publicar Alterações ✨'}</button>
+              <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '22px', borderRadius: '24px', fontSize: '1.25rem', fontWeight: '900', boxShadow: '0 15px 40px rgba(139, 92, 246, 0.4)', transition: 'all 0.3s' }} onMouseEnter={(e) => e.target.style.transform = 'translateY(-4px)'} onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}>{loading ? 'Sincronizando...' : 'Publicar Alterações ✨'}</button>
             </form>
           </div>
         </div>

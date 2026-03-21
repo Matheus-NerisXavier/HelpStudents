@@ -5,28 +5,48 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #0c0e12;
-
+  color-scheme: light;
+  
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Design Tokens - Estilo Neon/Electric mais jovem */
-  --primary: #8b5cf6; /* Violet */
+  /* Cores Fixas da Marca (Branding) */
+  --primary: #8b5cf6;
   --primary-glow: rgba(139, 92, 246, 0.5);
-  --secondary: #06b6d4; /* Cyan */
-  --accent: #10b981; /* Emerald/Neon Green */
-  --bg-dark: #050608;
-  --bg-card: rgba(15, 23, 42, 0.6);
-  --glass: rgba(255, 255, 255, 0.02);
+  --secondary: #06b6d4;
+  --accent: #10b981;
+  --accent-warm: #f59e0b;
+
+  /* Tema Global: CLARO (Light Mode Padrão) - com tons da marca para acessibilidade */
+  --bg-main: #f8fafc; /* Fundo cinza ultraclaro limpo */
+  --bg-card: #ffffff;
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(139, 92, 246, 0.1);
+  --text-main: #0f172a; /* Slate 900 */
+  --text-muted: #475569; /* Slate 600 - escurecido para contraste */
+  --sidebar-bg: rgba(255, 255, 255, 0.9);
+  --hover-bg: rgba(15, 23, 42, 0.04);
+  --border-light: rgba(15, 23, 42, 0.08);
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  
+  --nav-height: 80px;
+}
+
+/* Tema Global: ESCURO (Dark Mode Opcional) */
+.dark {
+  color-scheme: dark;
+  --bg-main: #050608;
+  --bg-card: #0a0c10;
+  --glass-bg: rgba(15, 23, 42, 0.4);
   --glass-border: rgba(255, 255, 255, 0.08);
   --text-main: #ffffff;
   --text-muted: #94a3b8;
-  
-  --nav-height: 80px;
+  --sidebar-bg: rgba(10, 12, 16, 0.65);
+  --hover-bg: rgba(255, 255, 255, 0.03);
+  --border-light: rgba(255, 255, 255, 0.05);
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 * {
@@ -39,9 +59,10 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--bg-dark);
+  background-color: var(--bg-main);
   color: var(--text-main);
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Fundo animado com gradientes orgânicos */

@@ -6,7 +6,8 @@ import {
   User as UserIcon, 
   Plus,
   Car,
-  Menu
+  Menu,
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
@@ -53,7 +54,7 @@ const Dashboard = () => {
   const firstName = (profile?.full_name || user?.user_metadata?.full_name)?.split(' ')[0] || 'Estudante';
   
   return (
-    <div style={{ display: 'flex', background: '#050608', minHeight: '100vh', color: 'white', overflowX: 'hidden' }}>
+    <div style={{ display: 'flex', background: 'var(--bg-main)', minHeight: '100vh', color: 'var(--text-main)', overflowX: 'hidden', transition: 'background-color 0.3s ease' }}>
       <Sidebar isCollapsed={isSidebarCollapsed} onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} isMobile={isMobile} />
       
       <motion.main 
@@ -76,16 +77,27 @@ const Dashboard = () => {
             {isMobile && (
               <button 
                 onClick={() => setIsSidebarCollapsed(false)}
-                style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', padding: '10px', borderRadius: '12px' }}
+                style={{ background: 'var(--hover-bg)', border: 'none', color: 'var(--text-main)', padding: '10px', borderRadius: '12px' }}
               >
                 <Menu size={24} />
               </button>
             )}
             <div>
-              <h1 style={{ fontSize: isMobile ? '1.8rem' : '2.5rem', fontWeight: '900', letterSpacing: '-1px', marginBottom: '4px' }}>
-                {getGreeting()}, {firstName}! 👋
+              <h1 style={{ 
+                fontSize: isMobile ? '1.8rem' : '2.5rem', 
+                fontWeight: '900', 
+                letterSpacing: '-1px', 
+                marginBottom: '4px'
+              }}>
+                <span style={{
+                  background: 'linear-gradient(to right, var(--text-main), var(--primary))',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}>
+                  {getGreeting()}, {firstName}!
+                </span> 👋
               </h1>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: '500' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: '500' }}>
                 {profile?.school || 'Pronto para os estudos hoje?'}
               </p>
             </div>
@@ -100,8 +112,8 @@ const Dashboard = () => {
           }}>
             <div style={{ 
               position: 'relative', 
-              background: 'rgba(255,255,255,0.03)', 
-              border: '1px solid rgba(255,255,255,0.05)', 
+              background: 'var(--hover-bg)', 
+              border: '1px solid var(--border-light)', 
               borderRadius: '16px', 
               padding: '12px 16px', 
               display: 'flex', 
@@ -110,43 +122,47 @@ const Dashboard = () => {
               flex: 1,
               maxWidth: isMobile ? '100%' : '350px' 
             }}>
-              <Search size={18} color="rgba(255,255,255,0.3)" />
+              <Search size={18} color="var(--text-muted)" />
               <input 
                 type="text" 
                 placeholder="Buscar..." 
-                style={{ background: 'none', border: 'none', color: 'white', outline: 'none', fontSize: '0.9rem', width: '100%' }} 
+                style={{ background: 'none', border: 'none', color: 'var(--text-main)', outline: 'none', fontSize: '0.9rem', width: '100%' }} 
               />
             </div>
             
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: isMobile ? '12px' : '16px' }}>
               <div style={{ 
-                width: '44px', 
-                height: '44px', 
-                borderRadius: '12px', 
-                background: 'rgba(255,255,255,0.03)', 
-                border: '1px solid rgba(255,255,255,0.05)', 
+                width: isMobile ? '48px' : '56px', 
+                height: isMobile ? '48px' : '56px', 
+                borderRadius: '50%', 
+                background: 'var(--hover-bg)', 
+                border: '1px solid var(--border-light)', 
                 display: 'flex', 
                 alignItems: 'center', 
-                justifyContent: 'center' 
+                justifyContent: 'center',
+                color: 'var(--text-main)',
+                cursor: 'pointer'
               }}>
-                <Bell size={20} />
+                <Bell size={isMobile ? 20 : 24} />
               </div>
               <div style={{ 
-                width: '44px', 
-                height: '44px', 
-                borderRadius: '12px', 
+                width: isMobile ? '48px' : '56px', 
+                height: isMobile ? '48px' : '56px', 
+                borderRadius: '50%', 
                 background: profile?.avatar_url ? 'transparent' : 'var(--primary)', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
-                boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
+                boxShadow: '0 8px 16px var(--primary-glow)',
                 overflow: 'hidden',
-                border: profile?.avatar_url ? '2px solid var(--primary)' : 'none'
+                border: profile?.avatar_url ? '2px solid var(--primary)' : 'none',
+                cursor: 'pointer'
               }}>
+
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <UserIcon size={20} color="white" />
+                  <UserIcon size={isMobile ? 20 : 24} color="white" />
                 )}
               </div>
             </div>
@@ -176,8 +192,8 @@ const Dashboard = () => {
               }}
             >
               <div style={{ position: 'relative', zIndex: 1 }}>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '4px' }}>Seu perfil está quase pronto! 🎓</h4>
-                <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)' }}>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '4px', color: 'var(--text-main)' }}>Seu perfil está quase pronto! 🎓</h4>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                   Complete seus dados de turma e horário para se conectar com seus colegas.
                 </p>
               </div>
@@ -219,37 +235,53 @@ const Dashboard = () => {
           marginBottom: isMobile ? '32px' : '48px' 
         }}>
           {[
-            { title: 'Criar Tópico', desc: 'Tire uma dúvida no fórum', icon: <Plus size={28} />, color: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' },
-            { title: 'Pedir Carona', desc: 'Encontre motoristas próximos', icon: <Car size={28} />, color: 'linear-gradient(135deg, #06b6d4, #0891b2)' },
-            { title: 'Material Novo', desc: 'Compartilhe seus estudos', icon: <Plus size={28} />, color: 'linear-gradient(135deg, #10b981, #059669)' },
+            { title: 'Criar Tópico', desc: 'Tire uma dúvida no fórum', icon: <Plus size={28} color="white" />, color: '#8b5cf6', glow: 'rgba(139, 92, 246, 0.4)' },
+            { title: 'Pedir Carona', desc: 'Encontre motoristas próximos', icon: <Car size={28} color="white" />, color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.4)' },
+            { title: 'Material Novo', desc: 'Compartilhe seus estudos', icon: <BookOpen size={28} color="white" />, color: '#10b981', glow: 'rgba(16, 185, 129, 0.4)' },
           ].map((card, i) => (
             <motion.div
               key={i}
-              whileHover={{ y: -8, scale: 1.02 }}
+              whileHover={{ y: -8, scale: 1.02, boxShadow: `0 20px 40px ${card.glow}` }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
               style={{
                 padding: '32px',
-                borderRadius: '28px',
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.05)',
+                borderRadius: '32px',
+                background: 'var(--glass-bg)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid var(--glass-border)',
                 cursor: 'pointer',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+                boxShadow: 'var(--card-shadow)',
+                position: 'relative',
+                overflow: 'hidden'
               }}
             >
+              <div style={{
+                position: 'absolute',
+                top: 0, right: 0, width: '150px', height: '150px',
+                background: card.color,
+                filter: 'blur(80px)',
+                opacity: 0.15,
+                borderRadius: '50%'
+              }} />
+              
               <div style={{ 
-                width: '56px', 
-                height: '56px', 
-                borderRadius: '16px', 
-                background: card.color, 
+                width: '64px', 
+                height: '64px', 
+                borderRadius: '20px', 
+                background: `linear-gradient(135deg, ${card.color}, #000)`, 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
                 marginBottom: '24px',
-                boxShadow: '0 0 20px rgba(0,0,0,0.3)'
+                boxShadow: `0 10px 20px ${card.glow}`,
+                position: 'relative',
+                zIndex: 2
               }}>
                 {card.icon}
               </div>
-              <h4 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '8px' }}>{card.title}</h4>
-              <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.4)', lineHeight: '1.5' }}>{card.desc}</p>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '8px', position: 'relative', zIndex: 2, color: 'var(--text-main)' }}>{card.title}</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: '500', position: 'relative', zIndex: 2 }}>{card.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -261,8 +293,8 @@ const Dashboard = () => {
           gap: isMobile ? '24px' : '40px' 
         }}>
           <div style={{ 
-            background: 'rgba(255,255,255,0.02)', 
-            border: '1px solid rgba(255,255,255,0.05)', 
+            background: 'var(--glass-bg)', 
+            border: '1px solid var(--border-light)', 
             borderRadius: isMobile ? '24px' : '32px', 
             padding: isMobile ? '24px' : '40px' 
           }}>
@@ -271,12 +303,12 @@ const Dashboard = () => {
               {[1, 2, 3].map(item => (
                 <motion.div 
                   key={item} 
-                  whileHover={{ background: 'rgba(255,255,255,0.03)' }}
+                  whileHover={{ background: 'var(--hover-bg)' }}
                   style={{ 
                     padding: isMobile ? '16px' : '24px', 
                     borderRadius: '20px', 
-                    background: 'rgba(255,255,255,0.01)', 
-                    border: '1px solid rgba(255,255,255,0.03)',
+                    background: 'var(--glass-bg)', 
+                    border: '1px solid var(--glass-border)',
                     transition: 'all 0.3s'
                   }}
                 >
@@ -289,10 +321,10 @@ const Dashboard = () => {
                     }}></div>
                     <div>
                       <span style={{ fontSize: '0.95rem', fontWeight: '800', display: 'block' }}>Aluno {item}</span>
-                      <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>Engenharia • {item * 5}m atrás</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Engenharia • {item * 5}m atrás</span>
                     </div>
                   </div>
-                  <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.6' }}>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-main)', lineHeight: '1.6' }}>
                     Acabei de publicar os novos resumos de Cálculo III e Física Experimental. Aproveitem para revisar antes da prova! 📚💪
                   </p>
                 </motion.div>
@@ -314,19 +346,19 @@ const Dashboard = () => {
                   "🏆 Universidade XYZ ganha prêmio nacional.",
                   "🛡️ Novos protocolos de segurança no Campus."
                 ].map((news, i) => (
-                  <p key={i} style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', lineHeight: '1.5' }}>{news}</p>
+                  <p key={i} style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>{news}</p>
                 ))}
               </div>
             </div>
 
             <div style={{ 
-              background: 'rgba(255,255,255,0.02)', 
-              border: '1px solid rgba(255,255,255,0.05)', 
+              background: 'var(--glass-bg)', 
+              border: '1px solid var(--border-light)', 
               borderRadius: isMobile ? '24px' : '32px', 
               padding: '24px' 
             }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: '900', marginBottom: '16px' }}>Caronas Próximas</h3>
-              <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '10px 0' }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '10px 0' }}>
                 🚗 Nenhum motorista disponível no momento.
               </p>
             </div>

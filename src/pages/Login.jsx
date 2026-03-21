@@ -41,8 +41,8 @@ const Login = () => {
     <div style={{
       height: '100vh',
       display: 'flex',
-      background: '#050608',
-      color: 'white',
+      background: 'var(--bg-main)',
+      color: 'var(--text-main)',
       fontFamily: "'Outfit', sans-serif",
       overflow: 'hidden'
     }}>
@@ -103,13 +103,13 @@ const Login = () => {
             marginBottom: '40px',
             boxShadow: '0 0 40px var(--primary-glow)'
           }}>
-            <GraduationCap size={44} color="white" />
+            <GraduationCap size={44} color="var(--text-main)" />
           </div>
           <h1 style={{ fontSize: '3.5rem', fontWeight: '900', letterSpacing: '-2px', marginBottom: '24px', lineHeight: 1 }}>
             Sua jornada <br />
             <span style={{ color: 'var(--secondary)' }}>começa aqui.</span>
           </h1>
-          <p style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.6)', maxWidth: '400px', lineHeight: 1.6 }}>
+          <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '400px', lineHeight: 1.6 }}>
             Junte-se a milhares de alunos que já estão transformando sua forma de estudar e colaborar.
           </p>
         </motion.div>
@@ -132,7 +132,7 @@ const Login = () => {
         flexDirection: 'column',
         justifyContent: 'center',
         padding: 'clamp(24px, 8vw, 80px)',
-        background: '#050608',
+        background: 'var(--bg-main)',
         position: 'relative'
       }}>
         <motion.div
@@ -186,11 +186,11 @@ const Login = () => {
                   required
                   style={{
                     width: '100%',
-                    background: 'rgba(255, 255, 255, 0.02)',
+                    background: 'var(--bg-card)',
                     border: '1px solid var(--glass-border)',
                     borderRadius: '20px',
                     padding: '20px 20px 20px 60px',
-                    color: 'white',
+                    color: 'var(--text-main)',
                     outline: 'none',
                     fontSize: '1rem',
                     transition: 'all 0.3s'
@@ -202,7 +202,7 @@ const Login = () => {
                   }}
                   onBlur={(e) => {
                     e.target.style.borderColor = 'var(--glass-border)';
-                    e.target.style.background = 'rgba(255, 255, 255, 0.02)';
+                    e.target.style.background = 'var(--bg-card)';
                     e.target.style.boxShadow = 'none';
                   }}
                 />
@@ -224,11 +224,11 @@ const Login = () => {
                   required
                   style={{
                     width: '100%',
-                    background: 'rgba(255, 255, 255, 0.02)',
+                    background: 'var(--bg-card)',
                     border: '1px solid var(--glass-border)',
                     borderRadius: '20px',
                     padding: '20px 60px 20px 60px',
-                    color: 'white',
+                    color: 'var(--text-main)',
                     outline: 'none',
                     fontSize: '1rem',
                     transition: 'all 0.3s'
@@ -240,7 +240,7 @@ const Login = () => {
                   }}
                   onBlur={(e) => {
                     e.target.style.borderColor = 'var(--glass-border)';
-                    e.target.style.background = 'rgba(255, 255, 255, 0.02)';
+                    e.target.style.background = 'var(--bg-card)';
                     e.target.style.boxShadow = 'none';
                   }}
                 />

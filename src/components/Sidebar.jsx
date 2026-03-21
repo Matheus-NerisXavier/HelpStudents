@@ -12,14 +12,18 @@ import {
   Search,
   BookOpen,
   Menu,
-  ChevronLeft
+  ChevronLeft,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
 const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
   const { signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
 
@@ -79,8 +83,10 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
         }}
         style={{
           height: '100vh',
-          background: '#0a0c10',
-          borderRight: '1px solid rgba(255,255,255,0.05)',
+          background: 'var(--sidebar-bg)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderRight: '1px solid var(--border-light)',
           display: 'flex',
           flexDirection: 'column',
           padding: (isCollapsed && !isMobile) ? '24px 12px' : '32px 20px',
@@ -144,28 +150,35 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
           {menuItems.map((item, i) => (
             <motion.div
               key={i}
-              whileHover={{ x: (isCollapsed && !isMobile) ? 0 : 5, background: 'rgba(255,255,255,0.03)' }}
+              whileHover={{ x: (isCollapsed && !isMobile) ? 0 : 5, background: item.active ? 'linear-gradient(90deg, var(--primary-glow), transparent)' : 'var(--hover-bg)' }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => item.path && navigate(item.path)}
               style={{
-                padding: '12px',
-                borderRadius: '12px',
+                padding: '12px 16px',
+                borderRadius: '16px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: (isCollapsed && !isMobile) ? 'center' : 'flex-start',
                 gap: '12px',
                 cursor: 'pointer',
-                background: item.active ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
-                color: item.active ? 'var(--primary)' : 'rgba(255,255,255,0.5)',
-                transition: 'all 0.2s',
-                position: 'relative'
+                background: item.active ? 'var(--primary)' : 'transparent',
+                color: item.active ? '#ffffff' : 'var(--text-main)',
+                opacity: item.active ? 1 : 0.7,
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                position: 'relative',
+                fontWeight: item.active ? '700' : '500',
+                boxShadow: item.active ? '0 8px 16px var(--primary-glow)' : 'none'
               }}
             >
-              {item.icon}
+              <div style={{ color: item.active ? '#ffffff' : 'inherit', display: 'flex' }}>
+
+                {item.icon}
+              </div>
               {(!isCollapsed || isMobile) && (
                 <motion.span 
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  style={{ fontSize: '0.95rem', fontWeight: '700' }}
+                  style={{ fontSize: '0.95rem', fontWeight: item.active ? '800' : '600', letterSpacing: '-0.3px', transition: 'color 0.3s' }}
                 >
                   {item.label}
                 </motion.span>
@@ -175,7 +188,28 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
         </nav>
 
         {/* FOOTER ACTIONS */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          
+          {/* BOTÃO DE TEMA */}
+          <div 
+            onClick={toggleTheme}
+            style={{
+              padding: '12px',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: (isCollapsed && !isMobile) ? 'center' : 'flex-start',
+              gap: '12px',
+              cursor: 'pointer',
+              color: 'var(--text-muted)',
+              background: 'var(--hover-bg)',
+              transition: 'all 0.2s'
+            }}
+          >
+            {theme === 'dark' ? <Sun size={22} color="#f59e0b" /> : <Moon size={22} color="#8b5cf6" />}
+            {(!isCollapsed || isMobile) && <span style={{ fontSize: '0.95rem', fontWeight: '700' }}>{theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}</span>}
+          </div>
+
           {/* BOTÃO DE EXPANDIR/RECOLHER (AGORA NO RODAPÉ NO DESKTOP) */}
           {!isMobile && (
             <div 
@@ -188,8 +222,8 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
                 justifyContent: isCollapsed ? 'center' : 'flex-start',
                 gap: '12px',
                 cursor: 'pointer',
-                color: 'rgba(255,255,255,0.4)',
-                background: 'rgba(255,255,255,0.02)',
+                color: 'var(--text-muted)',
+                background: 'var(--hover-bg)',
                 transition: 'all 0.2s'
               }}
             >
@@ -214,25 +248,22 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
               color: '#ef4444'
             }}
           >
-            <LogOut size={22} />
-            {(!isCollapsed || isMobile) && <span style={{ fontSize: '0.95rem', fontWeight: '700' }}>Sair da Conta</span>}
+            <LogOut size={22} color="#ef4444" />
+            {(!isCollapsed || isMobile) && <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ef4444' }}>Sair da Conta</span>}
           </div>
         </div>
       </motion.div>
 
-      {/* MODAL DE CONFIRMAÇÃO */}
+      {/* CONFIRMAÇÃO DE LOGOUT MODAL */}
       <AnimatePresence>
         {showLogoutConfirm && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             style={{
               position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
+              inset: 0,
               background: 'rgba(0,0,0,0.8)',
               backdropFilter: 'blur(8px)',
               zIndex: 1000,
@@ -243,50 +274,41 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
             }}
           >
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
               style={{
-                background: '#0a0c10',
-                border: '1px solid rgba(255,255,255,0.1)',
-                padding: '40px',
-                borderRadius: '32px',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-light)',
+                borderRadius: '24px',
+                padding: '32px',
                 maxWidth: '400px',
                 width: '100%',
-                textAlign: 'center'
+                textAlign: 'center',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
               }}
             >
-              <div style={{ 
-                width: '64px', 
-                height: '64px', 
-                borderRadius: '50%', 
-                background: 'rgba(239, 68, 68, 0.1)', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                margin: '0 auto 24px auto',
-                color: '#ef4444'
-              }}>
-                <LogOut size={32} />
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto' }}>
+                <LogOut size={32} color="#ef4444" />
               </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '12px', color: 'white' }}>Deseja mesmo sair?</h3>
-              <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '32px', lineHeight: '1.5' }}>
-                Você precisará entrar novamente com seu e-mail e senha para acessar seus dados.
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '12px', color: 'var(--text-main)' }}>Sair da Conta?</h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '32px', lineHeight: '1.5' }}>
+                Tem certeza que deseja sair? Você precisará fazer login novamente para acessar a plataforma.
               </p>
-              <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <button 
                   onClick={() => setShowLogoutConfirm(false)}
                   style={{
-                    flex: 1,
-                    padding: '16px',
+                    padding: '14px',
                     borderRadius: '16px',
-                    background: 'rgba(255,255,255,0.05)',
-                    color: 'white',
-                    border: 'none',
-                    fontWeight: '700'
+                    background: 'var(--hover-bg)',
+                    border: '1px solid var(--border-light)',
+                    color: 'var(--text-main)',
+                    fontWeight: '700',
+                    cursor: 'pointer'
                   }}
                 >
-                  Não, voltar
+                  Cancelar
                 </button>
                 <button 
                   onClick={handleSignOut}

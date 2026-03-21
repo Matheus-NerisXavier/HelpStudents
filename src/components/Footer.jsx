@@ -1,5 +1,5 @@
 import React from 'react';
-import { GraduationCap, Github, Instagram, Twitter } from 'lucide-react';
+import { GraduationCap, Instagram, Facebook } from 'lucide-react';
 
 const Footer = () => {
   const [isMobile, setIsMobile] = React.useState(window.innerWidth < 768);
@@ -44,7 +44,7 @@ const Footer = () => {
  
           {/* LINKS */}
           <div>
-            <h4 style={{ marginBottom: '20px', fontSize: '1.1rem', color: 'white' }}>Plataforma</h4>
+            <h4 style={{ marginBottom: '20px', fontSize: '1.1rem', color: 'var(--text-main)' }}>Plataforma</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
               <a href="#" style={{ color: 'var(--text-muted)' }}>Comunidade</a>
               <a href="#" style={{ color: 'var(--text-muted)' }}>Vestibulares</a>
@@ -54,7 +54,7 @@ const Footer = () => {
           </div>
  
           <div>
-            <h4 style={{ marginBottom: '20px', fontSize: '1.1rem', color: 'white' }}>Suporte</h4>
+            <h4 style={{ marginBottom: '20px', fontSize: '1.1rem', color: 'var(--text-main)' }}>Suporte</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
               <a href="#" style={{ color: 'var(--text-muted)' }}>Ajuda</a>
               <a href="#" style={{ color: 'var(--text-muted)' }}>Regras da Comunidade</a>
@@ -65,21 +65,36 @@ const Footer = () => {
  
           {/* SOCIAL */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'center' : 'flex-start' }}>
-            <h4 style={{ marginBottom: '20px', fontSize: '1.1rem', color: 'white' }}>Redes Sociais</h4>
+            <h4 style={{ marginBottom: '20px', fontSize: '1.1rem', color: 'var(--text-main)' }}>Redes Sociais</h4>
             <div style={{ display: 'flex', gap: '16px' }}>
-              <a href="#" className="btn-glass" style={{ padding: '10px', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Instagram size={18} /></a>
-              <a href="#" className="btn-glass" style={{ padding: '10px', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Twitter size={18} /></a>
-              <a href="#" className="btn-glass" style={{ padding: '10px', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Github size={18} /></a>
+              <a href="#" className="btn-glass" style={{ padding: '10px', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--hover-bg)', color: 'var(--text-main)' }}>
+                <Instagram size={18} />
+              </a>
+              <a href="#" className="btn-glass" style={{ padding: '10px', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--hover-bg)', color: 'var(--text-main)' }}>
+                <Facebook size={18} />
+              </a>
+              {/* Ícone X (SVG customizado) */}
+              <a href="#" className="btn-glass" style={{ padding: '10px', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--hover-bg)', color: 'var(--text-main)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 4l16 16M4 20L20 4"></path>
+                </svg>
+              </a>
+              {/* Ícone TikTok (SVG customizado) */}
+              <a href="#" className="btn-glass" style={{ padding: '10px', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--hover-bg)', color: 'var(--text-main)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+                </svg>
+              </a>
             </div>
           </div>
         </div>
  
         <div style={{
           paddingTop: '30px',
-          borderTop: '1px solid var(--glass-border)',
+          borderTop: '1px solid var(--border-light)',
           textAlign: 'center',
-          fontSize: '0.8rem',
-          color: 'rgba(255,255,255,0.3)'
+          fontSize: '0.9rem',
+          color: 'var(--text-muted)'
         }}>
           <p>© {new Date().getFullYear()} HelpStudents. Feito com ❤️ para estudantes.</p>
         </div>

@@ -128,8 +128,8 @@ const Signup = () => {
     <div style={{
       height: '100vh',
       display: 'flex',
-      background: '#050608',
-      color: 'white',
+      background: 'var(--bg-main)',
+      color: 'var(--text-main)',
       fontFamily: "'Outfit', sans-serif",
       overflow: 'hidden'
     }}>
@@ -168,13 +168,13 @@ const Signup = () => {
             marginBottom: '32px',
             boxShadow: '0 0 30px rgba(6, 182, 212, 0.3)'
           }}>
-            <GraduationCap size={32} color="white" />
+            <GraduationCap size={32} color="var(--text-main)" />
           </div>
           <h1 style={{ fontSize: '3rem', fontWeight: '900', letterSpacing: '-1.5px', marginBottom: '20px', lineHeight: 1.1 }}>
             Junte-se à <br />
             <span style={{ color: 'var(--secondary)' }}>Comunidade.</span>
           </h1>
-          <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.6)', maxWidth: '350px', lineHeight: 1.6 }}>
+          <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', maxWidth: '350px', lineHeight: 1.6 }}>
             Crie sua conta e tenha acesso a caronas, fóruns e materiais de estudo exclusivos.
           </p>
         </motion.div>
@@ -186,7 +186,7 @@ const Signup = () => {
         display: 'flex',
         flexDirection: 'column',
         padding: '40px clamp(24px, 8vw, 60px)',
-        background: '#050608',
+        background: 'var(--bg-main)',
         position: 'relative',
         overflowY: 'auto'
       }}>
@@ -228,7 +228,7 @@ const Signup = () => {
                 <div style={{ position: 'relative' }}>
                   <User style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
                   <input type="text" name="fullName" placeholder="Seu nome" value={formData.fullName} onChange={handleChange} required 
-                    style={{ width: '100%', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--glass-border)', borderRadius: '14px', padding: '14px 14px 14px 44px', color: 'white', outline: 'none' }} />
+                    style={{ width: '100%', background: 'var(--bg-card)', border: '1px solid var(--glass-border)', borderRadius: '14px', padding: '14px 14px 14px 44px', color: 'var(--text-main)', outline: 'none' }} />
                 </div>
               </div>
               <div>
@@ -236,7 +236,7 @@ const Signup = () => {
                 <div style={{ position: 'relative' }}>
                   <Calendar style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
                   <input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} required
-                    style={{ width: '100%', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--glass-border)', borderRadius: '14px', padding: '14px 14px 14px 44px', color: 'white', outline: 'none' }} />
+                    style={{ width: '100%', background: 'var(--bg-card)', border: '1px solid var(--glass-border)', borderRadius: '14px', padding: '14px 14px 14px 44px', color: 'var(--text-main)', outline: 'none' }} />
                 </div>
               </div>
             </div>
@@ -253,11 +253,11 @@ const Signup = () => {
                   onChange={(e) => handleSchoolSearch(e.target.value)}
                   style={{ 
                     width: '100%', 
-                    background: 'rgba(255, 255, 255, 0.02)', 
+                    background: 'var(--bg-card)', 
                     border: '1px solid var(--glass-border)', 
                     borderRadius: '14px', 
                     padding: '14px 14px 14px 44px', 
-                    color: 'white', 
+                    color: 'var(--text-main)', 
                     outline: 'none',
                     transition: 'border-color 0.3s'
                   }} 
@@ -270,7 +270,7 @@ const Signup = () => {
                     top: '100%',
                     left: 0,
                     right: 0,
-                    background: '#0a0c10',
+                    background: 'var(--glass-bg)',
                     border: '1px solid var(--glass-border)',
                     borderRadius: '12px',
                     marginTop: '8px',
@@ -286,7 +286,7 @@ const Signup = () => {
                           padding: '12px 16px',
                           fontSize: '0.85rem',
                           cursor: 'pointer',
-                          borderBottom: i === schoolSuggestions.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.05)',
+                          borderBottom: i === schoolSuggestions.length - 1 ? 'none' : '1px solid var(--border-light)',
                           transition: 'background 0.2s',
                         }}
                         onMouseEnter={(e) => e.target.style.background = 'rgba(139, 92, 246, 0.1)'}
@@ -314,7 +314,7 @@ const Signup = () => {
               <div style={{ position: 'relative' }}>
                 <Mail style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
                 <input type="email" name="email" placeholder="seu@email.com" value={formData.email} onChange={handleChange} required
-                  style={{ width: '100%', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--glass-border)', borderRadius: '14px', padding: '14px 14px 14px 44px', color: 'white', outline: 'none' }} />
+                  style={{ width: '100%', background: 'var(--bg-card)', border: '1px solid var(--glass-border)', borderRadius: '14px', padding: '14px 14px 14px 44px', color: 'var(--text-main)', outline: 'none' }} />
               </div>
             </div>
 
@@ -323,7 +323,7 @@ const Signup = () => {
               <div style={{ position: 'relative' }}>
                 <Lock style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
                 <input type={showPassword ? "text" : "password"} name="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required
-                  style={{ width: '100%', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--glass-border)', borderRadius: '14px', padding: '14px 44px 14px 44px', color: 'white', outline: 'none' }} />
+                  style={{ width: '100%', background: 'var(--bg-card)', border: '1px solid var(--glass-border)', borderRadius: '14px', padding: '14px 44px 14px 44px', color: 'var(--text-main)', outline: 'none' }} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>

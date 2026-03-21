@@ -268,7 +268,7 @@ const ProfileCompletion = ({ user, onComplete }) => {
                       background: formData.education_level === level.id ? 'rgba(139, 92, 246, 0.15)' : 'rgba(255, 255, 255, 0.04)',
                       border: `1px solid ${formData.education_level === level.id ? '#8b5cf6' : 'rgba(255, 255, 255, 0.08)'}`,
                       borderRadius: '24px',
-                      color: 'white',
+                      color: 'var(--text-main)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '20px',
@@ -278,7 +278,7 @@ const ProfileCompletion = ({ user, onComplete }) => {
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                   >
-                    <div style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '16px' }}>
+                    <div style={{ padding: '12px', background: 'var(--border-light)', borderRadius: '16px' }}>
                       <level.icon size={24} color={formData.education_level === level.id ? '#8b5cf6' : '#64748b'} />
                     </div>
                     <span style={{ fontWeight: '800', fontSize: '1.2rem' }}>{level.label}</span>
@@ -310,7 +310,7 @@ const ProfileCompletion = ({ user, onComplete }) => {
                        searchInstitutions(e.target.value);
                     }}
                     onFocus={() => formData.school_name.length >= 2 && setShowSuggestions(true)}
-                    style={{ width: '100%', padding: '20px 20px 20px 60px', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '20px', color: 'white', outline: 'none', fontSize: '1.1rem' }}
+                    style={{ width: '100%', padding: '20px 20px 20px 60px', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid var(--border-light)', borderRadius: '20px', color: 'var(--text-main)', outline: 'none', fontSize: '1.1rem' }}
                   />
                   {searching && <div style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem', color: '#06b6d4' }}>Buscando...</div>}
 
@@ -342,11 +342,11 @@ const ProfileCompletion = ({ user, onComplete }) => {
                               setFormData({...formData, school_name: s.nome});
                               setShowSuggestions(false);
                             }}
-                            style={{ padding: '16px 24px', cursor: 'pointer', borderBottom: i < schoolSuggestions.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none', display: 'flex', alignItems: 'center', gap: '14px', transition: '0.2s' }}
-                            onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
+                            style={{ padding: '16px 24px', cursor: 'pointer', borderBottom: i < schoolSuggestions.length - 1 ? '1px solid var(--border-light)' : 'none', display: 'flex', alignItems: 'center', gap: '14px', transition: '0.2s' }}
+                            onMouseEnter={(e) => e.target.style.background = 'var(--border-light)'}
                             onMouseLeave={(e) => e.target.style.background = 'none'}
                           >
-                            <Search size={16} color="rgba(255,255,255,0.2)" />
+                            <Search size={16} color="var(--border-light)" />
                             <span style={{ fontSize: '1rem', fontWeight: '600' }}>{s.nome}</span>
                           </div>
                         ))}
@@ -359,10 +359,10 @@ const ProfileCompletion = ({ user, onComplete }) => {
                   <div>
                     <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '16px', fontWeight: '700' }}>Modalidade do curso:</p>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-                      <button onClick={() => setFormData({...formData, campus_type: 'Presencial'})} style={{ padding: '20px', background: formData.campus_type === 'Presencial' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(255,255,255,0.04)', border: `1px solid ${formData.campus_type === 'Presencial' ? '#06b6d4' : 'rgba(255,255,255,0.1)'}`, borderRadius: '20px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontWeight: '700', cursor: 'pointer' }}>
+                      <button onClick={() => setFormData({...formData, campus_type: 'Presencial'})} style={{ padding: '20px', background: formData.campus_type === 'Presencial' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(255,255,255,0.04)', border: `1px solid ${formData.campus_type === 'Presencial' ? '#06b6d4' : 'var(--border-light)'}`, borderRadius: '20px', color: 'var(--text-main)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontWeight: '700', cursor: 'pointer' }}>
                          <MapPin size={20} /> Presencial
                       </button>
-                      <button onClick={() => setFormData({...formData, campus_type: 'EAD'})} style={{ padding: '20px', background: formData.campus_type === 'EAD' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(255,255,255,0.04)', border: `1px solid ${formData.campus_type === 'EAD' ? '#06b6d4' : 'rgba(255,255,255,0.1)'}`, borderRadius: '20px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontWeight: '700', cursor: 'pointer' }}>
+                      <button onClick={() => setFormData({...formData, campus_type: 'EAD'})} style={{ padding: '20px', background: formData.campus_type === 'EAD' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(255,255,255,0.04)', border: `1px solid ${formData.campus_type === 'EAD' ? '#06b6d4' : 'var(--border-light)'}`, borderRadius: '20px', color: 'var(--text-main)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontWeight: '700', cursor: 'pointer' }}>
                          <Globe size={20} /> EAD
                       </button>
                     </div>
@@ -398,13 +398,13 @@ const ProfileCompletion = ({ user, onComplete }) => {
                       placeholder="Nome do Curso (ex: Direito)"
                       value={formData.course_name}
                       onChange={(e) => setFormData({...formData, course_name: e.target.value})}
-                      style={{ width: '100%', padding: '20px 20px 20px 60px', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '20px', color: 'white', outline: 'none', fontSize: '1.1rem' }}
+                      style={{ width: '100%', padding: '20px 20px 20px 60px', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid var(--border-light)', borderRadius: '20px', color: 'var(--text-main)', outline: 'none', fontSize: '1.1rem' }}
                     />
                   </div>
                 )}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
                   {getYearOptions().map(y => (
-                    <button key={y} onClick={() => setFormData({...formData, course_year: y.toString()})} style={{ padding: '16px', background: formData.course_year === y.toString() ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.04)', border: `1px solid ${formData.course_year === y.toString() ? '#8b5cf6' : 'rgba(255, 255, 255, 0.1)'}`, borderRadius: '16px', color: 'white', fontWeight: '800', cursor: 'pointer' }}>
+                    <button key={y} onClick={() => setFormData({...formData, course_year: y.toString()})} style={{ padding: '16px', background: formData.course_year === y.toString() ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.04)', border: `1px solid ${formData.course_year === y.toString() ? '#8b5cf6' : 'var(--border-light)'}`, borderRadius: '16px', color: 'var(--text-main)', fontWeight: '800', cursor: 'pointer' }}>
                       {getYearLabel(y)}
                     </button>
                   ))}
@@ -433,13 +433,13 @@ const ProfileCompletion = ({ user, onComplete }) => {
                   placeholder="Nome da Turma (Ex: 3ºB, Grupo TI...)"
                   value={formData.class_name}
                   onChange={(e) => setFormData({...formData, class_name: e.target.value})}
-                  style={{ width: '100%', padding: '20px', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '20px', color: 'white', outline: 'none', fontSize: '1.1rem' }}
+                  style={{ width: '100%', padding: '20px', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid var(--border-light)', borderRadius: '20px', color: 'var(--text-main)', outline: 'none', fontSize: '1.1rem' }}
                 />
                 <div>
                   <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '16px', fontWeight: '800' }}>Em quais turnos você estuda?</p>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     {schedules.map(s => (
-                      <button key={s.id} onClick={() => handleScheduleToggle(s.id)} style={{ padding: '16px', background: formData.study_schedule.includes(s.id) ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.04)', border: `1px solid ${formData.study_schedule.includes(s.id) ? '#10b981' : 'rgba(255, 255, 255, 0.1)'}`, borderRadius: '16px', color: 'white', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1rem', fontWeight: '700', cursor: 'pointer' }}>
+                      <button key={s.id} onClick={() => handleScheduleToggle(s.id)} style={{ padding: '16px', background: formData.study_schedule.includes(s.id) ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.04)', border: `1px solid ${formData.study_schedule.includes(s.id) ? '#10b981' : 'var(--border-light)'}`, borderRadius: '16px', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1rem', fontWeight: '700', cursor: 'pointer' }}>
                         <s.icon size={18} color={formData.study_schedule.includes(s.id) ? '#10b981' : '#64748b'} />
                         {s.id}
                       </button>
@@ -472,9 +472,9 @@ const ProfileCompletion = ({ user, onComplete }) => {
                     style={{
                       padding: '20px',
                       background: formData.interests.includes(option.id) ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.04)',
-                      border: `1px solid ${formData.interests.includes(option.id) ? '#8b5cf6' : 'rgba(255, 255, 255, 0.1)'}`,
+                      border: `1px solid ${formData.interests.includes(option.id) ? '#8b5cf6' : 'var(--border-light)'}`,
                       borderRadius: '20px',
-                      color: 'white',
+                      color: 'var(--text-main)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '16px',
@@ -509,7 +509,7 @@ const ProfileCompletion = ({ user, onComplete }) => {
                 placeholder="Ex: Aluno de Direito apaixonado por tecnologia!"
                 value={formData.student_bio}
                 onChange={(e) => setFormData({...formData, student_bio: e.target.value})}
-                style={{ width: '100%', height: '180px', padding: '24px', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '24px', color: 'white', outline: 'none', resize: 'none', fontSize: '1.1rem', lineHeight: '1.6' }}
+                style={{ width: '100%', height: '180px', padding: '24px', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid var(--border-light)', borderRadius: '24px', color: 'var(--text-main)', outline: 'none', resize: 'none', fontSize: '1.1rem', lineHeight: '1.6' }}
               />
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '14px', marginTop: '32px' }}>
