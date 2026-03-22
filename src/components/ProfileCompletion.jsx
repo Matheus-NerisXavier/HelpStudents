@@ -205,7 +205,7 @@ const ProfileCompletion = ({ user, onComplete }) => {
   };
 
   return (
-    <div style={{
+    <div className="dark" style={{
       position: 'fixed',
       top: 0,
       left: 0,
@@ -217,7 +217,9 @@ const ProfileCompletion = ({ user, onComplete }) => {
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 2000,
-      padding: '20px'
+      padding: '20px',
+      color: 'var(--text-main)',
+      fontFamily: "'Outfit', sans-serif"
     }}>
       <motion.div
         variants={modalVariants}

@@ -125,7 +125,7 @@ const Signup = () => {
   };
 
   return (
-    <div style={{
+    <div className="dark" style={{
       height: '100vh',
       display: 'flex',
       background: 'var(--bg-main)',

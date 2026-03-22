@@ -38,8 +38,8 @@ const Login = () => {
   };
 
   return (
-    <div style={{
-      height: '100vh',
+    <div className="dark" style={{
+      minHeight: '100vh',
       display: 'flex',
       background: 'var(--bg-main)',
       color: 'var(--text-main)',
