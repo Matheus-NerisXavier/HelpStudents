@@ -1,18 +1,21 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  LayoutDashboard, 
-  MessageSquare, 
-  Newspaper, 
-  Car, 
-  User, 
-  Settings, 
+import {
+  LayoutDashboard,
+  MessageSquare,
+  Newspaper,
+  Car,
+  User,
+  Settings,
   LogOut,
   Bell,
   Search,
   BookOpen,
   Menu,
   ChevronLeft,
+  ChevronDown,
+  ChevronUp,
+  GraduationCap,
   Moon,
   Sun
 } from 'lucide-react';
@@ -21,11 +24,18 @@ import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
-const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
+const Sidebar = ({ isMobile }) => {
   const { signOut } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, isSidebarCollapsed: isCollapsed, toggleSidebar: onToggle } = useTheme();
   const navigate = useNavigate();
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
+  const [openMenus, setOpenMenus] = React.useState({
+    academic: window.location.pathname.startsWith('/academic')
+  });
+
+  const toggleMenu = (id) => {
+    setOpenMenus(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const handleSignOut = async () => {
     console.log("Iniciando logout...");
@@ -42,6 +52,19 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
 
   const menuItems = [
     { icon: <LayoutDashboard size={22} />, label: 'Dashboard', id: 'dash', active: window.location.pathname === '/dashboard', path: '/dashboard' },
+    {
+      icon: <GraduationCap size={22} />,
+      label: 'Acadêmico',
+      id: 'academic',
+      isExpandable: true,
+      active: window.location.pathname.startsWith('/academic'),
+      subItems: [
+        { label: 'Minhas Instituições', path: '/academic' },
+        { label: 'Matérias', path: '/academic/subjects' },
+        { label: 'Notas e Boletim', path: '/academic/grades' },
+        { label: 'Faltas', path: '/academic/attendance' }
+      ]
+    },
     { icon: <MessageSquare size={22} />, label: 'Fórum de Dúvidas', id: 'forum', path: '/forum' },
     { icon: <Newspaper size={22} />, label: 'Notícias Escolares', id: 'news', path: '/news' },
     { icon: <BookOpen size={22} />, label: 'Materiais de Estudo', id: 'docs', path: '/docs' },
@@ -75,9 +98,9 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
         )}
       </AnimatePresence>
 
-      <motion.div 
+      <motion.div
         initial={false}
-        animate={{ 
+        animate={{
           width: isMobile ? sidebarWidth : (isCollapsed ? '80px' : '280px'),
           x: isMobile && isCollapsed ? -sidebarWidth : 0
         }}
@@ -97,23 +120,23 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       >
         {/* HEADER / LOGO */}
-        <div style={{ 
-          marginBottom: '40px', 
-          display: 'flex', 
-          alignItems: 'center', 
+        <div style={{
+          marginBottom: '40px',
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: (isCollapsed && !isMobile) ? 'center' : 'space-between',
           padding: (isCollapsed && !isMobile) ? '0' : '0 12px'
         }}>
           {(!isCollapsed || isMobile) && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
             >
-              <div style={{ 
-                width: '40px', 
-                height: '40px', 
-                borderRadius: '10px', 
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '10px',
                 overflow: 'hidden',
                 background: 'rgba(139, 92, 246, 0.1)',
                 display: 'flex',
@@ -125,12 +148,12 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
               <span style={{ fontWeight: '900', fontSize: '1.25rem', letterSpacing: '-0.5px' }}>HelpStudents</span>
             </motion.div>
           )}
-          
+
           {(isCollapsed && !isMobile) && (
-            <div style={{ 
-              width: '40px', 
-              height: '40px', 
-              borderRadius: '10px', 
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
               overflow: 'hidden',
               background: 'rgba(139, 92, 246, 0.1)',
               display: 'flex',
@@ -148,55 +171,120 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
         <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {/* ... (menuItems mapping) */}
           {menuItems.map((item, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ x: (isCollapsed && !isMobile) ? 0 : 5, background: item.active ? 'linear-gradient(90deg, var(--primary-glow), transparent)' : 'var(--hover-bg)' }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                if (item.path) navigate(item.path);
-                if (isMobile && !isCollapsed && onToggle) {
-                  onToggle();
-                }
-              }}
-              style={{
-                padding: '12px 16px',
-                borderRadius: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: (isCollapsed && !isMobile) ? 'center' : 'flex-start',
-                gap: '12px',
-                cursor: 'pointer',
-                background: item.active ? 'var(--primary)' : 'transparent',
-                color: item.active ? '#ffffff' : 'var(--text-main)',
-                opacity: item.active ? 1 : 0.7,
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                position: 'relative',
-                fontWeight: item.active ? '700' : '500',
-                boxShadow: item.active ? '0 8px 16px var(--primary-glow)' : 'none'
-              }}
-            >
-              <div style={{ color: item.active ? '#ffffff' : 'inherit', display: 'flex' }}>
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <motion.div
+                whileHover={{ x: (isCollapsed && !isMobile) ? 0 : 5, background: item.active && !item.isExpandable ? 'linear-gradient(90deg, var(--primary-glow), transparent)' : 'var(--hover-bg)' }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  if (item.isExpandable) {
+                    if (isCollapsed && !isMobile) onToggle(); // Expand if it was collapsed
+                    toggleMenu(item.id);
+                  } else {
+                    if (item.path) navigate(item.path);
+                    if (isMobile && !isCollapsed && onToggle) {
+                      onToggle();
+                    }
+                  }
+                }}
+                style={{
+                  padding: '12px 16px',
+                  borderRadius: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: (isCollapsed && !isMobile) ? 'center' : 'space-between',
+                  gap: '12px',
+                  cursor: 'pointer',
+                  background: (item.active && !item.isExpandable) ? 'var(--primary)' : (item.active && item.isExpandable && (!isCollapsed || isMobile) ? 'var(--hover-bg)' : 'transparent'),
+                  color: (item.active && !item.isExpandable) ? '#ffffff' : (item.active && item.isExpandable ? 'var(--primary)' : 'var(--text-main)'),
+                  borderLeft: (item.active && !isCollapsed) ? '4px solid var(--primary)' : '4px solid transparent',
+                  paddingLeft: (item.active && !isCollapsed) ? '12px' : '16px',
+                  opacity: item.active ? 1 : 0.7,
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  position: 'relative',
+                  fontWeight: item.active ? '700' : '600',
+                  boxShadow: (item.active && !item.isExpandable) ? '0 4px 12px rgba(139, 92, 246, 0.1)' : 'none'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{
+                    color: (item.active && !item.isExpandable) ? '#ffffff' : (item.active ? 'var(--primary)' : 'inherit'),
+                    display: 'flex',
+                    filter: item.active ? 'drop-shadow(0 0 8px var(--primary-glow))' : 'none'
+                  }}>
+                    {item.icon}
+                  </div>
+                  {(!isCollapsed || isMobile) && (
+                    <motion.span
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      style={{ fontSize: '0.95rem', fontWeight: item.active ? '800' : '600', letterSpacing: '-0.3px', transition: 'color 0.3s' }}
+                    >
+                      {item.label}
+                    </motion.span>
+                  )}
+                </div>
 
-                {item.icon}
-              </div>
-              {(!isCollapsed || isMobile) && (
-                <motion.span 
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  style={{ fontSize: '0.95rem', fontWeight: item.active ? '800' : '600', letterSpacing: '-0.3px', transition: 'color 0.3s' }}
-                >
-                  {item.label}
-                </motion.span>
+                {item.isExpandable && (!isCollapsed || isMobile) && (
+                  <div style={{ display: 'flex', alignItems: 'center', opacity: 0.5 }}>
+                    {openMenus[item.id] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </div>
+                )}
+              </motion.div>
+
+              {/* SubItems Render */}
+              {item.isExpandable && (!isCollapsed || isMobile) && (
+                <AnimatePresence>
+                  {openMenus[item.id] && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      style={{ display: 'flex', flexDirection: 'column', gap: '4px', overflow: 'hidden', paddingLeft: '44px' }}
+                    >
+                      {item.subItems.map((sub, j) => {
+                        const isSubActive = window.location.pathname === sub.path;
+                        return (
+                          <motion.div
+                            key={j}
+                            whileHover={{ x: 5, color: isSubActive ? '#ffffff' : 'var(--primary)' }}
+                            onClick={() => {
+                              navigate(sub.path);
+                              // Auto-recolher menu após selecionar subitem para liberar espaço na tela 🚀
+                              if (!isCollapsed && onToggle) onToggle();
+                            }}
+                            style={{
+                              padding: '10px 12px',
+                              borderRadius: '12px',
+                              cursor: 'pointer',
+                              color: isSubActive ? '#ffffff' : 'var(--text-muted)',
+                              background: isSubActive ? 'var(--primary)' : 'transparent',
+                              fontSize: '0.85rem',
+                              fontWeight: isSubActive ? '900' : '600',
+                              transition: 'all 0.2s',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              boxShadow: isSubActive ? '0 4px 12px var(--primary-glow)' : 'none'
+                            }}
+                          >
+                            {isSubActive && <motion.div layoutId="sub-indicator" style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#ffffff' }} />}
+                            {sub.label}
+                          </motion.div>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               )}
-            </motion.div>
+            </div>
           ))}
         </nav>
 
         {/* FOOTER ACTIONS */}
         <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          
+
           {/* BOTÃO DE TEMA */}
-          <div 
+          <div
             onClick={toggleTheme}
             style={{
               padding: '12px',
@@ -217,7 +305,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
 
           {/* BOTÃO DE EXPANDIR/RECOLHER (AGORA NO RODAPÉ NO DESKTOP) */}
           {!isMobile && (
-            <div 
+            <div
               onClick={onToggle}
               style={{
                 padding: '12px',
@@ -240,7 +328,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
           )}
 
           {/* SAIR DA CONTA */}
-          <div 
+          <div
             onClick={() => setShowLogoutConfirm(true)}
             style={{
               padding: '12px',
@@ -278,7 +366,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
               padding: '20px'
             }}
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -301,7 +389,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
                 Tem certeza que deseja sair? Você precisará fazer login novamente para acessar a plataforma.
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <button 
+                <button
                   onClick={() => setShowLogoutConfirm(false)}
                   style={{
                     padding: '14px',
@@ -315,7 +403,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
                 >
                   Cancelar
                 </button>
-                <button 
+                <button
                   onClick={handleSignOut}
                   style={{
                     flex: 1,

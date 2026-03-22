@@ -12,6 +12,10 @@ export const ThemeProvider = ({ children }) => {
     return window.innerWidth < 768 ? 'dark' : 'light';
   });
 
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return window.innerWidth < 1024; // Auto-recolher em telas médias/pequenas
+  });
+
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'dark') {
@@ -26,8 +30,22 @@ export const ThemeProvider = ({ children }) => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(prev => !prev);
+  };
+
+  const setSidebarCollapsed = (val) => {
+    setIsSidebarCollapsed(val);
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ 
+      theme, 
+      toggleTheme, 
+      isSidebarCollapsed, 
+      toggleSidebar, 
+      setSidebarCollapsed 
+    }}>
       {children}
     </ThemeContext.Provider>
   );

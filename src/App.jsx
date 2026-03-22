@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
+import Academic from './pages/Academic';
 import { useAuth } from './context/AuthContext';
 
 // ... (LayoutWrapper code)
@@ -14,7 +15,7 @@ const LayoutWrapper = ({ children }) => {
   const { user } = useAuth();
   
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
-  const isInternalPage = location.pathname === '/dashboard' || location.pathname === '/profile';
+  const isInternalPage = location.pathname === '/dashboard' || location.pathname === '/profile' || location.pathname.startsWith('/academic');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
@@ -37,6 +38,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/academic/*" element={<Academic />} />
         </Routes>
       </LayoutWrapper>
     </Router>

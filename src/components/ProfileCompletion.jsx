@@ -159,17 +159,9 @@ const ProfileCompletion = ({ user, onComplete }) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      const { error } = await supabase
+      const { error: profileError } = await supabase
         .from('user_profiles')
         .update({
-          education_level: formData.education_level,
-          school_name: formData.school_name,
-          course_name: formData.course_name,
-          course_year: parseInt(formData.course_year),
-          course_period: formData.course_period,
-          campus_type: formData.campus_type,
-          class_name: formData.class_name,
-          study_schedule: formData.study_schedule,
           student_bio: formData.student_bio,
           interests: formData.interests,
           is_profile_complete: true,
@@ -177,7 +169,24 @@ const ProfileCompletion = ({ user, onComplete }) => {
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Inserir Vínculo Acadêmico (Instituição)
+      const { error: instError } = await supabase
+        .from('user_institutions')
+        .insert({
+          user_id: user.id,
+          institution_name: formData.school_name || "Instituição Inicial",
+          course_name: formData.course_name,
+          course_year: parseInt(formData.course_year) || null,
+          course_period: formData.study_schedule || [],
+          class_name: formData.class_name,
+          modality: formData.campus_type || 'Presencial',
+          education_level: formData.education_level || 'Ensino Superior',
+          is_primary: true
+        });
+
+      if (instError) throw instError;
 
       if (session) {
         await logActivity({

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
-  User, Mail, Globe, BookOpen, Clock, ArrowLeft, Heart, 
-  GraduationCap, School, Lock, Eye, EyeOff, CheckCircle2, 
-  AlertCircle, Hash, FileText, Loader2, Search, Pencil
+  User, Mail, Camera, ArrowLeft, Menu,
+  Save, Loader2, Lock, ShieldCheck, Eye, EyeOff
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../lib/supabase';
 import { logActivity } from '../lib/logger';
 import Sidebar from '../components/Sidebar';
@@ -14,246 +14,53 @@ import { useNavigate } from 'react-router-dom';
 const Profile = () => {
   const { user, profile, session, refreshProfile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
-  
-  const [schoolSuggestions, setSchoolSuggestions] = useState([]);
-  const [searching, setSearching] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const suggestionRef = useRef(null);
   const fileInputRef = useRef(null);
+  
+  const { isSidebarCollapsed, toggleSidebar, setSidebarCollapsed } = useTheme();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
 
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // Estado do formulário
   const [formData, setFormData] = useState({
     full_name: '',
-    email: '',
     student_bio: '',
-    school_name: '',
-    course_name: '',
-    course_year: '',
-    education_level: 'Ensino Superior',
-    class_name: '',
-    course_period: 'Manhã',
-    campus_type: 'Presencial',
-    interests: [],
-    avatar_url: ''
+    interests: []
   });
 
-  const [initialized, setInitialized] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [showPass, setShowPass] = useState(false);
 
-  // 1. Inicialização Estável (Se authLoading terminar e profile vier, carrega dados. Se não vier, inicializa vazio)
   useEffect(() => {
-    if (!authLoading && !initialized && user) {
-      console.log("Profile Initializing Data...");
-      if (profile) {
-        setFormData({
-          email: user.email || '',
-          full_name: profile.full_name || '',
-          student_bio: profile.student_bio || '',
-          school_name: profile.school_name || '',
-          course_name: profile.course_name || '',
-          course_year: profile.course_year?.toString() || '',
-          education_level: profile.education_level || 'Ensino Superior',
-          class_name: profile.class_name || '',
-          course_period: profile.course_period || 'Manhã',
-          campus_type: profile.campus_type || 'Presencial',
-          interests: Array.isArray(profile.interests) ? profile.interests : [],
-          avatar_url: profile.avatar_url || ''
-        });
-      } else {
-        // Caso não exista perfil ainda (raro mas possível)
-        setFormData(prev => ({ ...prev, email: user.email || '' }));
-      }
-      setInitialized(true);
+    if (profile) {
+      setFormData({
+        full_name: profile.full_name || '',
+        student_bio: profile.student_bio || '',
+        interests: profile.interests || []
+      });
     }
-  }, [user, profile, authLoading, initialized]);
+  }, [profile]);
 
-  // 2. Busca de Instituição com BYPASS total do cliente Supabase (usando fetch nativo)
   useEffect(() => {
-    if (!initialized) return;
-    const term = formData.school_name;
-    
-    if (term.length < 2) {
-      setSchoolSuggestions([]);
-      setSearching(false);
-      return;
-    }
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (mobile) setSidebarCollapsed(true);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [setSidebarCollapsed]);
 
-    // Não buscar se for exatamente o que já está salvo
-    if (profile && term === profile.school_name && schoolSuggestions.length === 0) return;
-
-    const timer = setTimeout(async () => {
-      setSearching(true);
-      try {
-        const sUrl = import.meta.env.VITE_SUPABASE_URL;
-        const sKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-        
-        if (!sUrl || !sKey) {
-          console.error("Profile: Config missing");
-          return;
-        }
-
-        const endpoint = `${sUrl}/rest/v1/educational_institutions?name=ilike.*${encodeURIComponent(term)}*&select=name&limit=6`;
-        
-        console.log("Profile - Buscando via Fetch:", endpoint);
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-        const response = await fetch(endpoint, {
-          headers: {
-            'apikey': sKey,
-            'Authorization': `Bearer ${sKey}` // Usa Anon Key para garantir acesso público
-          },
-          signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) throw new Error("Fetch failed");
-        
-        const data = await response.json();
-        console.log("Profile - Resultados:", data.length);
-        setSchoolSuggestions(data.map(i => ({ nome: i.name })));
-      } catch (err) {
-        console.error("Profile Search Critico:", err);
-      } finally {
-        setSearching(false);
-      }
-    }, 600);
-
-    return () => clearTimeout(timer);
-  }, [formData.school_name, initialized]);
-
-  const selectSchool = (nome) => {
-    setFormData(prev => ({ ...prev, school_name: nome }));
-    setSchoolSuggestions([]);
-    setSearching(false);
-  };
-
-  const handleUpdate = async (e) => {
-    if (e) e.preventDefault();
-    
-    if (!user?.id || !session?.access_token) {
-      setMessage({ type: 'error', text: 'Sessão expirada. Por favor, faça login novamente.' });
-      return;
-    }
-
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-    
-    try {
-      const sUrl = import.meta.env.VITE_SUPABASE_URL;
-      const sKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      const endpoint = `${sUrl}/rest/v1/user_profiles?id=eq.${user.id}`;
-      
-      const response = await fetch(endpoint, {
-        method: 'PATCH',
-        headers: {
-          'apikey': sKey,
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({
-          full_name: formData.full_name,
-          student_bio: formData.student_bio,
-          school_name: formData.school_name,
-          course_name: formData.course_name,
-          course_year: parseInt(formData.course_year) || 0,
-          education_level: formData.education_level,
-          class_name: formData.class_name,
-          course_period: formData.course_period,
-          campus_type: formData.campus_type,
-          interests: formData.interests,
-          updated_at: new Date().toISOString()
-        })
-      });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || "Erro ao salvar perfil no banco.");
-      }
-
-      // Log de Auditoria (LGPD) 🛡️
-      await logActivity({
-        userId: user.id,
-        token: session.access_token,
-        action: 'profile_update',
-        route: '/profile',
-        oldData: {
-          full_name: profile?.full_name,
-          school_name: profile?.school_name,
-          course_name: profile?.course_name,
-          course_year: profile?.course_year,
-          education_level: profile?.education_level,
-          interests: profile?.interests
-        },
-        newData: {
-          full_name: formData.full_name,
-          school_name: formData.school_name,
-          course_name: formData.course_name,
-          course_year: formData.course_year,
-          education_level: formData.education_level,
-          interests: formData.interests
-        }
-      });
-
-      if (formData.email !== user.email) {
-        const { error: emailError } = await supabase.auth.updateUser({ email: formData.email });
-        if (emailError) throw emailError;
-        setMessage({ type: 'success', text: 'Perfil salvo! Verifique a confirmação no seu NOVO e-mail.' });
-      } else {
-        setMessage({ type: 'success', text: 'Perfil atualizado com sucesso! ✨' });
-      }
-      
-      await refreshProfile();
-      
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message || 'Erro inesperado ao salvar.' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      setMessage({ type: 'error', text: 'Senhas não coincidem.' });
-      return;
-    }
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
-      setMessage({ type: 'success', text: 'Senha alterada com sucesso!' });
-      setShowPasswordForm(false);
-      setNewPassword(''); setConfirmPassword('');
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      setMessage({ type: 'error', text: 'Por favor, selecione uma imagem válida (.jpg, .png).' });
-      return;
-    }
-
     if (file.size > 2 * 1024 * 1024) {
-      setMessage({ type: 'error', text: 'A imagem deve ter no máximo 2MB.' });
+      setMessage({ type: 'error', text: 'Imagem muito grande (máx 2MB).' });
       return;
     }
 
@@ -262,326 +69,228 @@ const Profile = () => {
 
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}.${fileExt}`;
+      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
 
+      // Upload para o bucket 'avatars'
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(fileName, file, { upsert: true });
+        .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
-      
-      // Forçar atualização do cache da imagem adicionando timestamp
-      const publicUrl = `${data.publicUrl}?t=${new Date().getTime()}`;
+      // Obter URL pública
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
 
-      // Salvar URL direto no banco de dados (Bypass)
-      const sUrl = import.meta.env.VITE_SUPABASE_URL;
-      const sKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      const endpoint = `${sUrl}/rest/v1/user_profiles?id=eq.${user.id}`;
-      
-      const updateRes = await fetch(endpoint, {
-        method: 'PATCH',
-        headers: {
-          'apikey': sKey,
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ avatar_url: publicUrl })
-      });
+      // Atualizar perfil com a nova URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
 
-      if (!updateRes.ok) throw new Error("Erro ao vincular imagem ao perfil.");
+      if (updateError) throw updateError;
 
-      setFormData(prev => ({ ...prev, avatar_url: publicUrl }));
-      await refreshProfile(); // Atualiza contexto e Dashboard imediatamente
-      setMessage({ type: 'success', text: 'Foto atualizada com sucesso! ✨' });
+      await refreshProfile();
+      setMessage({ type: 'success', text: 'Foto de perfil atualizada! 📸' });
     } catch (err) {
-      setMessage({ type: 'error', text: err.message || 'Erro ao enviar foto.' });
+      setMessage({ type: 'error', text: err.message });
     } finally {
       setUploading(false);
     }
   };
 
-  const toggleInterest = (interest) => {
-    setFormData(prev => ({
-      ...prev,
-      interests: prev.interests.includes(interest)
-        ? prev.interests.filter(i => i !== interest)
-        : [...prev.interests, interest]
-    }));
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: formData.full_name,
+          student_bio: formData.student_bio,
+          interests: formData.interests,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      await logActivity({
+        userId: user.id,
+        token: session.access_token,
+        action: 'profile_update',
+        route: '/profile'
+      });
+
+      await refreshProfile();
+      setMessage({ type: 'success', text: 'Perfil atualizado com sucesso! ✨' });
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const interestOptions = ['Tecnologia', 'Esportes', 'Música', 'Artes', 'Games', 'Fotografia', 'Culinária', 'Estudos'];
-  const yearOptions = formData.education_level === 'Ensino Médio' ? ['1', '2', '3'] : ['1', '2', '3', '4', '5', '6'];
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setMessage({ type: 'error', text: 'As senhas não coincidem.' });
+      return;
+    }
+    if (passwordData.newPassword.length < 6) {
+      setMessage({ type: 'error', text: 'A senha deve ter pelo menos 6 caracteres.' });
+      return;
+    }
 
-  if (authLoading || !initialized) {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: passwordData.newPassword });
+      if (error) throw error;
+      setMessage({ type: 'success', text: 'Senha alterada com sucesso! 🔐' });
+      setPasswordData({ newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (authLoading) {
     return (
       <div style={{ background: 'var(--bg-main)', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-main)' }}>
         <Loader2 className="animate-spin" size={48} color="#8b5cf6" style={{ marginBottom: '20px' }} />
-        <p style={{ fontWeight: '800', opacity: 0.5 }}>Sincronizando seus dados...</p>
+        <p style={{ fontWeight: '800', opacity: 0.5 }}>Sincronizando dados...</p>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', background: 'var(--bg-main)', minHeight: '100vh', color: 'var(--text-main)', fontFamily: "'Outfit', sans-serif" }}>
-      <Sidebar isCollapsed={isSidebarCollapsed} onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} isMobile={isMobile} />
+    <div style={{ display: 'flex', background: 'var(--bg-main)', minHeight: '100vh', color: 'var(--text-main)', overflowX: 'hidden' }}>
+      <Sidebar isMobile={isMobile} />
       
       <motion.main 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1, marginLeft: isMobile ? '0' : (isSidebarCollapsed ? '80px' : '280px'), padding: isMobile ? '20px' : '40px 60px' }}
-        style={{ flex: 1 }}
+        animate={{ 
+          marginLeft: isMobile ? '0' : (isSidebarCollapsed ? '80px' : '280px'),
+          padding: isMobile ? '20px' : '40px 60px'
+        }}
+        style={{ 
+          flex: 1, 
+          maxWidth: '1200px',
+          margin: '0 auto',
+          width: '100%',
+          transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
       >
-        <header style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
-          <button onClick={() => navigate('/dashboard')} className="btn-glass" style={{ padding: '12px', borderRadius: '16px' }}><ArrowLeft size={20} /></button>
+        <header style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+          {isMobile ? (
+            <button onClick={toggleSidebar} style={{ background: 'var(--hover-bg)', border: 'none', color: 'var(--text-main)', padding: '10px', borderRadius: '12px' }}>
+              <Menu size={24} />
+            </button>
+          ) : (
+            <button onClick={() => navigate('/dashboard')} style={{ background: 'var(--hover-bg)', border: 'none', color: 'var(--text-main)', padding: '10px', borderRadius: '12px' }}>
+              <ArrowLeft size={24} />
+            </button>
+          )}
           <h1 style={{ fontSize: isMobile ? '1.8rem' : '2.5rem', fontWeight: '900', letterSpacing: '-2px' }}>Meu Perfil</h1>
         </header>
 
         {message.text && (
-          <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} style={{ padding: '16px 24px', borderRadius: '20px', background: message.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: message.type === 'success' ? '#10b981' : '#ef4444', border: `1px solid ${message.type === 'success' ? '#10b981' : '#ef4444'}`, marginBottom: '32px', fontWeight: '800' }}>
+          <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} style={{ padding: '16px 24px', borderRadius: '20px', background: message.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: message.type === 'success' ? '#10b981' : '#ef4444', border: `1px solid ${message.type === 'success' ? '#10b981' : '#ef4444'}`, marginBottom: '32px', fontWeight: '800', zIndex: 100 }}>
             {message.text}
           </motion.div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '40px' : '40px' }}>
-          {/* LADO PREVIEW */}
-          <section style={{ width: isMobile ? '100%' : '33%', background: 'var(--glass-bg)', border: '1px solid var(--border-light)', borderRadius: '32px', padding: '40px', textAlign: 'center', position: isMobile ? 'relative' : 'sticky', top: '40px', backdropFilter: 'blur(20px)', alignSelf: 'start' }}>
-            
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleImageUpload} 
-              accept="image/*" 
-              style={{ display: 'none' }} 
-            />
-            
-            <div style={{ position: 'relative', width: '130px', height: '130px', margin: '0 auto 24px auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ position: 'absolute', inset: 0, borderRadius: '44px', background: 'linear-gradient(45deg, #8b5cf6, #06b6d4, #f59e0b)', filter: 'blur(12px)', opacity: 0.5, animation: 'spin 4s linear infinite' }} />
-              
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '350px 1fr', gap: '40px' }}>
+          {/* CARTÃO LATERAL */}
+          <div className="glass-card" style={{ padding: '40px', textAlign: 'center', height: 'fit-content', position: isMobile ? 'static' : 'sticky', top: '40px' }}>
+            <div style={{ position: 'relative', width: '130px', height: '130px', margin: '0 auto 24px' }}>
               <div 
-                onClick={() => fileInputRef.current?.click()}
                 style={{ 
-                  width: '120px', 
-                  height: '120px', 
-                  borderRadius: '40px', 
-                  background: formData.avatar_url ? 'var(--bg-main)' : 'linear-gradient(135deg, #8b5cf6, #06b6d4)', 
+                  width: '100%', 
+                  height: '100%', 
+                  borderRadius: '50%', 
+                  background: 'linear-gradient(45deg, var(--primary), #d946ef)', 
                   display: 'flex', 
                   alignItems: 'center', 
-                  justifyContent: 'center', 
-                  boxShadow: '0 20px 40px rgba(139, 92, 246, 0.3)',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  border: formData.avatar_url ? '2px solid #8b5cf6' : '3px solid var(--border-light)',
-                  zIndex: 2
-                }}
-              >
-                {uploading && (
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-                    <Loader2 className="animate-spin" size={24} color="var(--text-main)" />
-                  </div>
-                )}
-                {formData.avatar_url ? (
-                  <img src={formData.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <User size={60} />
-                )}
-                <div 
-                  className="avatar-overlay"
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    opacity: 0,
-                    transition: 'opacity 0.2s',
-                    color: 'var(--text-main)',
-                    fontSize: '0.9rem',
-                    fontWeight: '700'
-                  }}
-                >
-                  Mudar Foto
-                </div>
-              </div>
-
-              {/* Ícone de Lápis Flutuante */}
-              <div 
-                onClick={() => fileInputRef.current?.click()}
-                style={{
-                  position: 'absolute',
-                  bottom: '-4px',
-                  right: '-4px',
-                  background: '#8b5cf6',
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
                   justifyContent: 'center',
-                  border: '3px solid var(--bg-main)',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                  zIndex: 20,
-                  transition: 'transform 0.2s'
+                  overflow: 'hidden',
+                  border: '4px solid var(--hover-bg)',
+                  boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
               >
-                <Pencil size={18} color="white" />
+                {uploading ? (
+                  <Loader2 className="animate-spin" size={40} color="white" />
+                ) : profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <User size={60} color="white" />
+                )}
               </div>
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                style={{ position: 'absolute', bottom: '0', right: '0', background: 'var(--primary)', border: '4px solid var(--bg-card)', color: 'white', padding: '10px', borderRadius: '50%', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}
+              >
+                <Camera size={18} />
+              </button>
+              <input type="file" ref={fileInputRef} onChange={handleAvatarUpload} accept="image/*" style={{ display: 'none' }} />
             </div>
-            
-            <style>{`
-              div:hover > .avatar-overlay { opacity: 1 !important; }
-              @keyframes spin { 100% { transform: rotate(360deg); } }
-              .glass-input {
-                width: 100%;
-                padding: 16px 20px;
-                background: transparent;
-                border: 1px solid var(--border-light);
-                border-radius: 16px;
-                color: var(--text-main);
-                transition: all 0.3s ease;
-                outline: none;
-                font-family: 'Outfit', sans-serif;
-              }
-              .glass-input:focus {
-                background: var(--border-light);
-                border-color: #8b5cf6;
-                box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-              }
-              .interest-tag {
-                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-              }
-              .interest-tag:hover {
-                transform: scale(1.05);
-                filter: brightness(1.2);
-              }
-              .level-btn {
-                transition: all 0.2s;
-              }
-              .level-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
-              }
-            `}</style>
+            <h2 style={{ fontWeight: '900', fontSize: '1.5rem', marginBottom: '8px' }}>{profile?.full_name || 'Estudante'}</h2>
+            <p style={{ color: 'var(--text-muted)', fontWeight: '600', marginBottom: '24px' }}>@{user?.email?.split('@')[0]}</p>
+          </div>
 
-            <h2 style={{ fontSize: '1.75rem', fontWeight: '900', marginBottom: '4px' }}>{formData.full_name || 'Estudante'}</h2>
-            <p style={{ color: '#8b5cf6', fontWeight: '700', marginBottom: '24px' }}>{formData.education_level}</p>
-            <div style={{ textAlign: 'left', background: 'var(--hover-bg)', padding: '20px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-muted)' }}><Mail size={14} /> {formData.email}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-muted)' }}><Globe size={14} /> {formData.school_name || 'Não definida'}</div>
+          {/* FORMULÁRIOS */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+            {/* INFORMAÇÕES BÁSICAS */}
+            <div className="glass-card" style={{ padding: isMobile ? '24px' : '40px' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '900', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <User size={24} color="#8b5cf6" /> Informações Básicas
+              </h3>
+              <form onSubmit={handleSave}>
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', marginBottom: '10px', fontWeight: '800', fontSize: '0.85rem', opacity: 0.6 }}>Nome Completo</label>
+                  <input type="text" value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} className="glass-input" placeholder="Seu nome" />
+                </div>
+                <div style={{ marginBottom: '32px' }}>
+                  <label style={{ display: 'block', marginBottom: '10px', fontWeight: '800', fontSize: '0.85rem', opacity: 0.6 }}>Bio Estudantil</label>
+                  <textarea value={formData.student_bio} onChange={(e) => setFormData({...formData, student_bio: e.target.value})} className="glass-input" rows="4" placeholder="Fale um pouco sobre você..." style={{ resize: 'none' }} />
+                </div>
+                <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', padding: '18px', borderRadius: '18px', fontWeight: '900', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+                  {loading ? <Loader2 className="animate-spin" /> : <Save size={20} />} Atualizar Perfil
+                </button>
+              </form>
             </div>
-          </section>
 
-          <div style={{ width: isMobile ? '100%' : '67%', display: 'flex', flexDirection: 'column', gap: '32px' }}>
             {/* SEGURANÇA */}
-            <div style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-light)', borderRadius: '32px', padding: isMobile ? '24px' : '40px' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px', color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '10px' }}><Lock size={20} /> Acesso & Segurança</h3>
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '8px', fontWeight: '800' }}>E-mail</label>
-                <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="glass-input" />
-              </div>
-              
-              {!showPasswordForm ? (
-                <button onClick={() => setShowPasswordForm(true)} className="btn-glass" style={{ color: '#8b5cf6', fontWeight: '800' }}>Alterar minha senha atual</button>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="glass-card" style={{ padding: isMobile ? '24px' : '40px' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '900', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <ShieldCheck size={24} color="#10b981" /> Segurança
+              </h3>
+              <form onSubmit={handlePasswordUpdate}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                   <div style={{ position: 'relative' }}>
-                    <input type={showNewPassword ? "text" : "password"} placeholder="Nova senha segura" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="glass-input" />
-                    <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-main)' }}>{showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                    <label style={{ display: 'block', marginBottom: '10px', fontWeight: '800', fontSize: '0.85rem', opacity: 0.6 }}>Nova Senha</label>
+                    <input type={showPass ? "text" : "password"} value={passwordData.newPassword} onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})} className="glass-input" placeholder="••••••••" style={{ paddingRight: '50px' }} />
+                    <button type="button" onClick={() => setShowPass(!showPass)} style={{ position: 'absolute', right: '15px', top: '42px', background: 'none', border: 'none', color: 'var(--text-muted)' }}>
+                      {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
                   </div>
-                   <div style={{ position: 'relative' }}>
-                    <input type={showConfirmPassword ? "text" : "password"} placeholder="Confirme a nova senha" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="glass-input" />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-main)' }}>{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
-                  </div>
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <button onClick={handleChangePassword} className="btn-primary">Salvar Senha</button>
-                    <button onClick={() => setShowPasswordForm(false)} className="btn-glass">Cancelar</button>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '10px', fontWeight: '800', fontSize: '0.85rem', opacity: 0.6 }}>Confirmar Senha</label>
+                    <input type={showPass ? "text" : "password"} value={passwordData.confirmPassword} onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})} className="glass-input" placeholder="••••••••" />
                   </div>
                 </div>
-              )}
+                <button type="submit" disabled={loading} className="btn-glass" style={{ width: '100%', padding: '18px', borderRadius: '18px', fontWeight: '900', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+                  <Lock size={20} /> Alterar Senha
+                </button>
+              </form>
             </div>
-
-            {/* FORMULÁRIO PRINCIPAL */}
-            <form onSubmit={handleUpdate} style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-light)', borderRadius: '32px', padding: isMobile ? '24px' : '40px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
-              <section>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px' }}>Dados do Estudante</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '20px' }}>
-                  <div style={{ gridColumn: isMobile ? 'span 1' : 'span 2' }}>
-                    <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '8px', fontWeight: '800' }}>Nome Completo</label>
-                    <input type="text" value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} className="glass-input" />
-                  </div>
-                  <div style={{ gridColumn: isMobile ? 'span 1' : 'span 2' }}>
-                     <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '12px', fontWeight: '800' }}>Nível de Ensino</label>
-                     <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                        {['Ensino Médio', 'Ensino Técnico', 'Ensino Superior'].map(lvl => (
-                          <button key={lvl} type="button" onClick={() => setFormData({...formData, education_level: lvl})} className="level-btn" style={{ padding: '12px 20px', borderRadius: '14px', background: formData.education_level === lvl ? 'rgba(139, 92, 246, 0.2)' : 'var(--hover-bg)', border: `1px solid ${formData.education_level === lvl ? '#8b5cf6' : 'var(--border-light)'}`, color: formData.education_level === lvl ? '#8b5cf6' : 'var(--text-muted)', fontWeight: '800' }}>{lvl}</button>
-                        ))}
-                     </div>
-                  </div>
-                </div>
-              </section>
-
-              <section>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px' }}>Vida Acadêmica</h3>
-                
-                <div style={{ position: 'relative', marginBottom: '24px' }}>
-                  <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '8px', fontWeight: '800' }}>Instituição / Escola</label>
-                  <div style={{ position: 'relative' }}>
-                    <input type="text" value={formData.school_name} onChange={(e) => setFormData({...formData, school_name: e.target.value})} placeholder="Busque sua faculdade ou escola..." className="glass-input" />
-                    {searching && <div className="animate-pulse" style={{ position: 'absolute', right: '18px', top: '50%', transform: 'translateY(-50%)', color: '#06b6d4', fontWeight: '900', fontSize: '0.75rem' }}>BUSCANDO...</div>}
-                  </div>
-                  
-                  <AnimatePresence>
-                    {schoolSuggestions.length > 0 && (
-                      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} ref={suggestionRef} style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'var(--glass-bg)', borderRadius: '20px', zIndex: 100, border: '1px solid var(--border-light)', marginTop: '8px', overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,0.6)' }}>
-                        {schoolSuggestions.map((s, i) => (
-                          <div key={i} onClick={() => selectSchool(s.nome)} style={{ padding: '16px 24px', cursor: 'pointer', borderBottom: '1px solid var(--border-light)', fontSize: '0.9rem' }} onMouseEnter={(e) => e.target.style.background = 'rgba(139, 92, 246, 0.1)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>{s.nome}</div>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '24px' }}>
-                  <div>
-                    <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '8px', fontWeight: '800' }}>Curso / Série</label>
-                    <input type="text" value={formData.course_name} onChange={(e) => setFormData({...formData, course_name: e.target.value})} className="glass-input" />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '8px', fontWeight: '800' }}>Ano / Período Atual</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', gap: '8px' }}>
-                      {yearOptions.map(opt => (
-                        <button key={opt} type="button" onClick={() => setFormData({...formData, course_year: opt})} className="level-btn" style={{ padding: '12px 4px', background: formData.course_year === opt ? 'rgba(139, 92, 246, 0.2)' : 'var(--hover-bg)', border: `1px solid ${formData.course_year === opt ? '#8b5cf6' : 'var(--border-light)'}`, borderRadius: '12px', color: formData.course_year === opt ? '#8b5cf6' : 'var(--text-muted)', fontWeight: '900' }}>{opt}</button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <section>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px' }}>Interesses</h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                  {interestOptions.map(i => (
-                    <button key={i} type="button" onClick={() => toggleInterest(i)} className="interest-tag" style={{ padding: '12px 20px', borderRadius: '16px', background: formData.interests.includes(i) ? 'radial-gradient(circle at top left, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.1))' : 'var(--hover-bg)', border: `1px solid ${formData.interests.includes(i) ? '#f59e0b' : 'var(--border-light)'}`, color: formData.interests.includes(i) ? '#f59e0b' : 'var(--text-muted)', fontWeight: '800', boxShadow: formData.interests.includes(i) ? '0 0 15px rgba(245, 158, 11, 0.2)' : 'none' }}>{i}</button>
-                  ))}
-                </div>
-              </section>
-
-              <section>
-                <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '12px', fontWeight: '800' }}>Sua Bio</label>
-                <textarea value={formData.student_bio} onChange={(e) => setFormData({...formData, student_bio: e.target.value})} placeholder="Conte um pouco sobre você..." className="glass-input" style={{ height: '120px', resize: 'none' }} />
-              </section>
-
-              <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '22px', borderRadius: '24px', fontSize: '1.25rem', fontWeight: '900', boxShadow: '0 15px 40px rgba(139, 92, 246, 0.4)', transition: 'all 0.3s' }} onMouseEnter={(e) => e.target.style.transform = 'translateY(-4px)'} onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}>{loading ? 'Sincronizando...' : 'Publicar Alterações ✨'}</button>
-            </form>
           </div>
         </div>
-        <div style={{ height: '60px' }} />
       </motion.main>
     </div>
   );
