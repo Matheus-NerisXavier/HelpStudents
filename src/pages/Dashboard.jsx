@@ -12,13 +12,15 @@ import {
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
 import ProfileCompletion from '../components/ProfileCompletion';
+import BannerCarousel from '../components/BannerCarousel';
 
 const Dashboard = () => {
   const { user, profile, refreshProfile } = useAuth();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
+  const [banners, setBanners] = useState([]);
+  const [loadingBanners, setLoadingBanners] = useState(true);
   // Monitora redimensionamento para responsividade
   React.useEffect(() => {
     const handleResize = () => {
@@ -28,6 +30,26 @@ const Dashboard = () => {
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Busca banners de marketing
+  React.useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const { supabase } = await import('../lib/supabase'); // Corrigido path
+        const { data, error } = await supabase
+          .from('marketing_banners')
+          .select('*')
+          .eq('is_active', true);
+        
+        if (!error && data) setBanners(data);
+      } catch (err) {
+        console.error('Erro banners:', err);
+      } finally {
+        setLoadingBanners(false);
+      }
+    };
+    fetchBanners();
   }, []);
 
   // Monitora se o perfil está incompleto
@@ -227,7 +249,11 @@ const Dashboard = () => {
           )}
         </AnimatePresence>
 
+        {/* CARROSSEL DE BANNERS */}
+        <BannerCarousel banners={banners} isMobile={isMobile} />
+
         {/* QUICK ACTIONS GRID */}
+
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
