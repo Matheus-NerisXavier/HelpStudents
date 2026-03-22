@@ -6,8 +6,10 @@ export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
-    // Tenta pegar o tema salvo ou usa 'light' como padrão
-    return localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) return savedTheme;
+    // Sem tema salvo: Força dark no mobile, light no desktop
+    return window.innerWidth < 768 ? 'dark' : 'light';
   });
 
   useEffect(() => {

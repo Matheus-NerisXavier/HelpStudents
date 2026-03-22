@@ -344,9 +344,9 @@ const Profile = () => {
           </motion.div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 2fr', gap: '40px' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '40px' : '40px' }}>
           {/* LADO PREVIEW */}
-          <section style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-light)', borderRadius: '32px', padding: '40px', textAlign: 'center', position: isMobile ? 'relative' : 'sticky', top: '40px', backdropFilter: 'blur(20px)', alignSelf: 'start' }}>
+          <section style={{ width: isMobile ? '100%' : '33%', background: 'var(--glass-bg)', border: '1px solid var(--border-light)', borderRadius: '32px', padding: '40px', textAlign: 'center', position: isMobile ? 'relative' : 'sticky', top: '40px', backdropFilter: 'blur(20px)', alignSelf: 'start' }}>
             
             <input 
               type="file" 
@@ -477,7 +477,7 @@ const Profile = () => {
             </div>
           </section>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          <div style={{ width: isMobile ? '100%' : '67%', display: 'flex', flexDirection: 'column', gap: '32px' }}>
             {/* SEGURANÇA */}
             <div style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-light)', borderRadius: '32px', padding: isMobile ? '24px' : '40px' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px', color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '10px' }}><Lock size={20} /> Acesso & Segurança</h3>

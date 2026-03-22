@@ -152,7 +152,12 @@ const Sidebar = ({ isCollapsed, onToggle, isMobile }) => {
               key={i}
               whileHover={{ x: (isCollapsed && !isMobile) ? 0 : 5, background: item.active ? 'linear-gradient(90deg, var(--primary-glow), transparent)' : 'var(--hover-bg)' }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => item.path && navigate(item.path)}
+              onClick={() => {
+                if (item.path) navigate(item.path);
+                if (isMobile && !isCollapsed && onToggle) {
+                  onToggle();
+                }
+              }}
               style={{
                 padding: '12px 16px',
                 borderRadius: '16px',
